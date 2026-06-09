@@ -81,7 +81,7 @@ jobs:
             .
 
       - name: List Docker images
-        run: docker images funtush-frontend
+        run: docker images 
 
   approval:
     name: Manual Approval Stage

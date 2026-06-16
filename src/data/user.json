@@ -1,0 +1,10 @@
+[
+  { "userId": "usr-admin", "role": "SUPER_ADMIN", "agencyId": null, "fullName": "Platform Coordinator", "email": "admin@funtush.com", "isActive": true },
+  { "userId": "usr-owner-himalayan", "role": "AGENCY_OWNER", "agencyId": "age-himalayan", "fullName": "Tenzing Sherpa", "email": "tenzing@himalayan.com", "isActive": true },
+  { "userId": "usr-staff-andes", "role": "AGENCY_STAFF", "agencyId": "age-andes", "fullName": "Maria Gomez", "email": "maria@andes.com", "isActive": true },
+  { "userId": "usr-client-john", "role": "CONSUMER", "agencyId": null, "fullName": "John Doe", "email": "john.doe@gmail.com", "isActive": true },
+  { "userId": "usr-client-emma", "role": "CONSUMER", "agencyId": null, "fullName": "Emma Watson", "email": "emma@gmail.com", "isActive": true },
+  { "userId": "usr-client-lucas", "role": "CONSUMER", "agencyId": null, "fullName": "Lucas Dubois", "email": "lucas@yahoo.fr", "isActive": true },
+  { "userId": "usr-owner-safari", "role": "AGENCY_OWNER", "agencyId": "age-safari", "fullName": "David Kiri", "email": "david@kilicore.com", "isActive": true },
+  { "userId": "usr-client-yuki", "role": "CONSUMER", "agencyId": null, "fullName": "Yuki Tanaka", "email": "yuki@tanaka.jp", "isActive": false }
+]

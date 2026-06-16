@@ -1,0 +1,10 @@
+[
+  { "guideId": "gui-301", "agencyId": "age-101", "name": "Pemba Sherpa", "licenseNo": "NMA-8848", "specialty": "High Altitude Operations", "rating": 4.9, "languages": ["en", "ne", "tibetan"], "emergencyCertifications": ["WFR", "High Altitude Rescue"], "status": "ACTIVE" },
+  { "guideId": "gui-302", "agencyId": "age-102", "name": "Carlos Mendoza", "licenseNo": "PER-AAGM-44", "specialty": "Inca Archaeology & Geology", "rating": 4.8, "languages": ["en", "es"], "emergencyCertifications": ["WAFA"], "status": "ACTIVE" },
+  { "guideId": "gui-303", "agencyId": "age-103", "name": "Hans Müller", "licenseNo": "EU-IFMGA-99", "specialty": "Glacier Traverse & Ice Routes", "rating": 5.0, "languages": ["en", "de", "fr"], "emergencyCertifications": ["UIAGM Ski Guide", "CPR"], "status": "ACTIVE" },
+  { "guideId": "gui-304", "agencyId": "age-104", "name": "Jambo Kiri", "licenseNo": "TZ-KILI-02", "specialty": "Acclimatization Strategy", "rating": 4.7, "languages": ["en", "swahili"], "emergencyCertifications": ["First Aid Pro"], "status": "ON_LEAVE" },
+  { "guideId": "gui-305", "agencyId": "age-105", "name": "Sarah Jenkins", "licenseNo": "NZ-DOC-112", "specialty": "Fiordland Flora & Fauna", "rating": 4.9, "languages": ["en"], "emergencyCertifications": ["PHEC Emergency Care"], "status": "ACTIVE" },
+  { "guideId": "gui-306", "agencyId": "age-106", "name": "Sofia Gatica", "licenseNo": "CL-PTG-90", "specialty": "Alpine Microclimates", "rating": 4.6, "languages": ["en", "es"], "emergencyCertifications": ["WFR"], "status": "ACTIVE" },
+  { "guideId": "gui-307", "agencyId": "age-107", "name": "Robert Clark", "licenseNo": "CA-ACMG-77", "specialty": "Bear Country Management", "rating": 4.8, "languages": ["en"], "emergencyCertifications": ["ACMG Ski Guide"], "status": "SUSPENDED" },
+  { "guideId": "gui-308", "agencyId": "age-108", "name": "Kenji Sato", "licenseNo": "JP-FJ-883", "specialty": "Night & Ascent Navigation", "rating": 4.7, "languages": ["en", "ja"], "emergencyCertifications": ["JSPO Certified Coach"], "status": "ACTIVE" }
+]

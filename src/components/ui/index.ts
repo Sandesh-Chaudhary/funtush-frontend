@@ -5,3 +5,9 @@ export * from './input';
 export * from './badge';
 export * from './spinner';
 export * from './avatar';
+
+export * from './card';
+export * from './modal';
+export * from './dropdown';
+export * from './tabs';
+export * from './pagination';

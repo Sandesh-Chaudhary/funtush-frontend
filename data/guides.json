@@ -40,5 +40,59 @@
     "status": "unavailable",
     "certifications": [],
     "rating": 4.2
+  },
+   {
+    "id": "gd-005",
+    "name": "Sagar Shrestha",
+    "photo": "/images/guides/sagar.jpg",
+    "languages": ["Nepali","English"],
+    "status": "unavailable",
+    "certifications": [],
+    "rating": 4.7
+  },
+   {
+    "id": "gd-006",
+    "name": "Sandesh Chaudhary",
+    "photo": "/images/guides/sandesh.jpg",
+    "languages": ["Nepali","English"],
+    "status": "unavailable",
+    "certifications": [
+      {"name":"Mountaineering Level 1","number":"MNT-102","expiry":"2026-03-30"}
+    ],
+    "rating": 4.9
+  },
+ {
+    "id": "gd-007",
+    "name": "Durga Diyali",
+    "photo": "/images/guides/durga.jpg",
+    "languages": ["Nepali","English"],
+    "status": "unavailable",
+    "certifications": [
+      {"name":"Guide License","number":"GL-909","expiry":"2026-12-15"}
+    ],
+    "rating": 4.4
+  },
+  {
+    "id": "gd-008",
+    "name": "Pemba Sherpa",
+    "photo": "/images/guides/pemba.jpg",
+    "languages": ["Nepali","English","Sherpa"],
+    "status": "available",
+    "certifications": [
+      {"name":"Wilderness First Aid","number":"WFA-235","expiry":"2026-10-01"},
+      {"name":"Mountaineering Level 2","number":"MNT-201","expiry":"2027-05-20"}
+    ],
+    "rating": 4.7
+  },
+  {
+    "id": "gd-009",
+    "name": "Anuskha Paudel",
+    "photo": "/images/guides/maya.jpg",
+    "languages": ["Nepali","English"],
+    "status": "available",
+    "certifications": [
+      {"name":"Wilderness First Aid","number":"WFA-236","expiry":"2026-10-01"}
+    ],
+    "rating": 4.6
   }
 ]

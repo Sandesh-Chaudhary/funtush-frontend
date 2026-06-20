@@ -32,5 +32,26 @@
     "name": "Rajesh Thapa",
     "email": "rajesh.thapa@example.com",
     "country": "Nepal"
+  },
+  {
+    "id": "user-006",
+    "role": "trekker",
+    "name": "Emily Davis",
+    "email": "emily.davis@example.com",
+    "country": "Canada"
+  },
+  {
+    "id": "user-007",
+    "role": "trekker",
+    "name": "Bibek Lama",
+    "email": "bibek.lama@example.com",
+    "country": "Nepal"
+  },
+  {
+    "id": "user-008",
+    "role": "trekker",
+    "name": "Parash Sherpa",
+    "email": "parash.sherpa@example.com",
+    "country": "Nepal"
   }
 ]

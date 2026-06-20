@@ -28,5 +28,75 @@
     "text": "Perfect for a week-long getaway.",
     "date": "2025-12-05",
     "country": "Nepal"
+  },
+  {
+    "id": "rv-004",
+    "package_id": "pkg-004",
+    "trekker_id": "user-005",
+    "rating": 5,
+    "title": "Challenging but rewarding",
+    "text": "Manaslu was tough but the views were worth it.",
+    "date": "2026-01-15",
+    "country": "Germany"
+  },
+  {
+    "id": "rv-005",
+    "package_id": "pkg-005",
+    "trekker_id": "user-004",
+    "rating": 3,
+    "title": "Decent trek",
+    "text": "Mardi Himal was nice but not as spectacular as expected.",
+    "date": "2026-02-10",
+    "country": "USA"
+  },
+  {
+    "id": "rv-006",
+    "package_id": "pkg-006",
+    "trekker_id": "user-003",
+    "rating": 5,
+    "title": "Amazing trek with Sherpa Steps",
+    "text": "Gokyo Lakes was breathtaking and the guides were fantastic.",
+    "date": "2026-05-01",
+    "country": "UK"
+  },
+  {
+    "id": "rv-007",
+    "package_id": "pkg-001",
+    "trekker_id": "user-008",
+    "rating": 4,
+    "title": "Great trek but tough",
+    "text": "Everest Base Camp was incredible but physically demanding.",
+    "date": "2026-04-25",
+    "country": "Australia"
+  },
+  {
+    "id": "rv-008",
+    "package_id": "pkg-002",
+    "trekker_id": "user-002",
+    "rating": 4,
+    "title": "Beautiful trek",
+    "text": "Annapurna Circuit had stunning views and good organization.",
+    "date": "2026-03-30",
+    "country": "Canada"
+  },
+  {
+    "id": "rv-009",
+    "package_id": "pkg-003",
+    "trekker_id": "user-001",
+    "rating": 5,
+    "title": "Perfect family trek",
+    "text": "Langtang was ideal for our family with kids. Safe and scenic.",
+    "date": "2025-11-20",
+    "country": "USA"
+  },
+  {
+    "id": "rv-010",
+    "package_id": "pkg-004",
+    "trekker_id": "user-004",
+    "rating": 5,
+    "title": "Incredible experience",
+    "text": "Manaslu was a once-in-a-lifetime trek. Highly recommend!",
+    "date": "2026-01-25",
+    "country": "USA"
   }
 ]

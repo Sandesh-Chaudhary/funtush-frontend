@@ -7,7 +7,7 @@ import { Eye, EyeOff } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
-import { saveSession, ROLE_REDIRECT } from '@/lib/auth';
+import { saveSessionEverywhere, ROLE_REDIRECT } from '@/lib/auth';
 import { ROUTES } from '@/lib/constants/routes';
 import type { RawUser, SessionUser } from '@/types/user';
 import usersData from '../../../../data/users.json';
@@ -92,7 +92,7 @@ export default function LoginPage() {
         token: `mock-jwt-${foundUser.id}-${Date.now()}`,
       };
 
-      saveSession(session);
+      saveSessionEverywhere(session);
 
       document.cookie = `authToken=${session.token}; path=/; max-age=86400`;
 

@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/router";
 
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui";
 
@@ -24,7 +23,6 @@ export default function GuideForm({
   onSave,
   isNew = false,
 }: GuideFormProps) {
-//   const router = useRouter();
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -327,13 +325,6 @@ export default function GuideForm({
               className="bg-blue-600 text-white px-4 py-2 rounded text-sm hover:bg-blue-700"
             >
               {isNew ? "Create Guide" : "Update Guide"}
-            </button>
-            <button
-              type="button"
-            //   onClick={() => router.back()}
-              className="border border-neutral-300 px-4 py-2 rounded text-sm hover:bg-neutral-50"
-            >
-              Cancel
             </button>
           </div>
         </form>

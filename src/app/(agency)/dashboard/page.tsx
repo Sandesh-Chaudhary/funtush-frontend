@@ -2,9 +2,28 @@
 
 import { useRouter } from 'next/navigation';
 
+import bookings from '../../../../data/bookings.json';
+import packages from '../../../../data/packages.json';
+import finance from '../../../../data/finance.json';
 /**
  * Agency Dashboard Overview Page
  */
+
+const agencyId = 'ag-001';
+
+const isAgencyData = (agency_id: string) => agency_id === agencyId;
+
+const totalPackages = packages.filter((pkg) => isAgencyData(pkg.agency_id)).length;
+
+const totalBookings = bookings.filter((booking) => isAgencyData(booking.agency_id)).length;
+
+const revenue = finance.income
+  .filter((item) => isAgencyData(item.agency_id))
+  .reduce((sum, item) => sum + item.amount, 0);
+
+const pendingInquiries = bookings.filter((booking) => isAgencyData(booking.agency_id) && booking.status === 'inquiry');
+
+const totalPendingInquiries = pendingInquiries.length;
 
 export default function AgencyDashboardPage() {
   const router = useRouter();
@@ -35,19 +54,19 @@ export default function AgencyDashboardPage() {
       <div className="grid grid-cols-1 gap-6 md:grid-cols-4">
         <div className="rounded-lg border border-neutral-200 bg-white p-6">
           <h3 className="text-sm font-medium text-neutral-600">Active Packages</h3>
-          <p className="mt-2 text-3xl font-bold text-neutral-900">0</p>
+          <p className="mt-2 text-3xl font-bold text-neutral-900">{totalPackages}</p>
         </div>
         <div className="rounded-lg border border-neutral-200 bg-white p-6">
           <h3 className="text-sm font-medium text-neutral-600">Total Bookings</h3>
-          <p className="mt-2 text-3xl font-bold text-neutral-900">0</p>
+          <p className="mt-2 text-3xl font-bold text-neutral-900">{totalBookings}</p>
         </div>
         <div className="rounded-lg border border-neutral-200 bg-white p-6">
           <h3 className="text-sm font-medium text-neutral-600">Revenue</h3>
-          <p className="mt-2 text-3xl font-bold text-neutral-900">$0</p>
+          <p className="mt-2 text-3xl font-bold text-neutral-900">${revenue}</p>
         </div>
         <div className="rounded-lg border border-neutral-200 bg-white p-6">
           <h3 className="text-sm font-medium text-neutral-600">Pending Actions</h3>
-          <p className="mt-2 text-3xl font-bold text-neutral-900">0</p>
+          <p className="mt-2 text-3xl font-bold text-neutral-900">{totalPendingInquiries}</p>
         </div>
       </div>
 

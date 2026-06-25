@@ -1,66 +1,231 @@
 'use client';
 
-import { FormEvent, useState } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { Eye, EyeOff } from 'lucide-react';
+
+import { Button } from '@/components/ui/button';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
+import { saveSessionEverywhere, ROLE_REDIRECT } from '@/lib/auth';
+import { ROUTES } from '@/lib/constants/routes';
+import type { RawUser, SessionUser } from '@/types/user';
+import usersData from '../../../../data/users.json';
+
+
+const users = usersData as unknown as RawUser[];
 
 export default function LoginPage() {
   const router = useRouter();
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+ 
+  const [emailError, setEmailError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+  const [formError, setFormError] = useState('');
+
+  const [isLoading, setIsLoading] = useState(false);
+
+
+  function validateEmail(value: string): string {
+    if (!value) return 'Email is required';
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(value)) return 'Please enter a valid email address';
+    return '';
+  }
+
+  function validatePassword(value: string): string {
+    if (!value) return 'Password is required';
+    if (value.length < 8) return 'Password must be at least 8 characters';
+    return '';
+  }
+
+  function handleEmailBlur() {
+    setEmailError(validateEmail(email));
+  }
+
+  function handlePasswordBlur() {
+    setPasswordError(validatePassword(password));
+  }
+
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!email || !password) {
-      setError('Please enter email and password.');
-      return;
-    }
 
-    document.cookie = 'authToken=1; path=/; max-age=86400';
-    router.push('/dashboard');
-  };
+    setFormError('');
+
+    const emailErr = validateEmail(email);
+    const passwordErr = validatePassword(password);
+
+    setEmailError(emailErr);
+    setPasswordError(passwordErr);
+
+    if (emailErr || passwordErr) return;
+
+    setIsLoading(true);
+
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
+      const foundUser = users.find(
+        (u) => u.email === email && u.password === password
+      );
+
+      if (!foundUser) {
+        setFormError('Invalid email or password');
+        setIsLoading(false);
+        return;
+      }
+
+      const session: SessionUser = {
+        id: foundUser.id,
+        role: foundUser.role,
+        agency_id: foundUser.agency_id,
+        name: foundUser.name,
+        email: foundUser.email,
+        password: foundUser.password,
+        country: foundUser.country,
+        phone: foundUser.phone,
+        member_since: foundUser.member_since,
+        token: `mock-jwt-${foundUser.id}-${Date.now()}`,
+      };
+
+      saveSessionEverywhere(session);
+
+      document.cookie = `authToken=${session.token}; path=/; max-age=86400`;
+
+      const redirectPath = ROLE_REDIRECT[foundUser.role];
+      router.push(redirectPath);
+
+    } catch (err) {
+      setFormError('Something went wrong. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-50 p-4">
-      <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-8 shadow-lg">
-        <div className="space-y-3 text-center">
-          <h1 className="text-3xl font-bold text-slate-900">Sign in to Funtush</h1>
-          <p className="text-sm text-slate-600">Use any email and password for this demo.</p>
-        </div>
+    <Card className="w-full rounded-2xl border border-neutral-200 shadow-lg">
 
-        <form className="mt-8 space-y-5" onSubmit={handleSubmit}>
-          {error ? <p className="rounded-md bg-red-50 px-4 py-2 text-sm text-red-700">{error}</p> : null}
+      <CardHeader className="text-center">
+        <CardTitle className="text-2xl font-bold text-neutral-900">
+          Welcome back
+        </CardTitle>
+        <CardDescription className="text-sm text-neutral-500">
+          Sign in to your Funtush account
+        </CardDescription>
+      </CardHeader>
 
-          <label className="block text-sm font-medium text-slate-900">
-            Email
+      <CardContent>
+        <form onSubmit={handleSubmit} noValidate className="space-y-5">
+
+          {formError && (
+            <div className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-600">
+              {formError}
+            </div>
+          )}
+
+          <div className="space-y-1">
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-neutral-700"
+            >
+              Email
+            </label>
             <input
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
+              id="email"
               type="email"
-              className="mt-2 w-full rounded-xl border border-slate-300 px-4 py-2 text-slate-900 outline-none transition focus:border-primary-500 focus:ring-2 focus:ring-primary-200"
+              value={email}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                if (emailError) setEmailError('');
+              }}
+              onBlur={handleEmailBlur}
               placeholder="you@example.com"
+              autoComplete="email"
+              className={`w-full rounded-xl border px-4 py-2.5 text-sm text-neutral-900 outline-none transition
+                placeholder:text-neutral-400
+                focus:ring-2
+                ${
+                  emailError
+                    ? 'border-red-400 focus:border-red-400 focus:ring-red-100'
+                    : 'border-neutral-300 focus:border-primary-500 focus:ring-primary-100'
+                }`}
             />
-          </label>
+            {emailError && (
+              <p className="text-xs text-red-500">{emailError}</p>
+            )}
+          </div>
 
-          <label className="block text-sm font-medium text-slate-900">
-            Password
-            <input
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              type="password"
-              className="mt-2 w-full rounded-xl border border-slate-300 px-4 py-2 text-slate-900 outline-none transition focus:border-primary-500 focus:ring-2 focus:ring-primary-200"
-              placeholder="Enter password"
-            />
-          </label>
+          <div className="space-y-1">
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium text-neutral-700"
+            >
+              Password
+            </label>
+            <div className="relative">
+              <input
+                id="password"
+                type={showPassword ? 'text' : 'password'}
+                value={password}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  if (passwordError) setPasswordError('');
+                }}
+                onBlur={handlePasswordBlur}
+                placeholder="Min. 8 characters"
+                autoComplete="current-password"
+                className={`w-full rounded-xl border px-4 py-2.5 pr-11 text-sm text-neutral-900 outline-none transition
+                  placeholder:text-neutral-400
+                  focus:ring-2
+                  ${
+                    passwordError
+                      ? 'border-red-400 focus:border-red-400 focus:ring-red-100'
+                      : 'border-neutral-300 focus:border-primary-500 focus:ring-primary-100'
+                  }`}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((prev) => !prev)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600"
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+              >
+                {showPassword ? (
+                  <EyeOff className="h-4 w-4" />
+                ) : (
+                  <Eye className="h-4 w-4" />
+                )}
+              </button>
+            </div>
+            {passwordError && (
+              <p className="text-xs text-red-500">{passwordError}</p>
+            )}
+          </div>
 
-          <button
+          <div className="flex justify-end">
+            <Link
+              href={ROUTES.AUTH.FORGOT_PASSWORD}
+              className="text-sm text-neutral-900 hover:underline "
+            >
+              Forgot password?
+            </Link>
+          </div>
+
+          <Button
             type="submit"
-            className="w-full rounded-xl bg-primary-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-primary-700"
+            variant="primary"
+            size="lg"
+            isLoading={isLoading}
+            className="w-full rounded-xl  text-neutral-900"
           >
             Sign in
-          </button>
+          </Button>
+
         </form>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }

@@ -1,21 +1,27 @@
 /**
  * Trekker Layout
  */
+import { TrekkerTopbar } from "@/components/trekker/layout/trekkers";
+
 
 export default function TrekkerLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return (
-    <div className="flex h-screen flex-col">
-      {/* Top Navigation */}
-      <header className="border-b border-neutral-200 bg-white px-6 py-4">
-        <h1 className="text-lg font-bold text-neutral-900">My Treks</h1>
-      </header>
+   return (
+    <div className="flex min-h-screen flex-col bg-neutral-50">
 
-      {/* Main Content */}
-      <main className="flex-1 overflow-y-auto">{children}</main>
+      {/* ── Top Navigation ── */}
+      <TrekkerTopbar />
+
+      {/* ── Main Content Area ── */}
+      <main className="flex-1">
+        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+          {children}
+        </div>
+      </main>
+
     </div>
   );
 }

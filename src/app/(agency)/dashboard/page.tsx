@@ -6,6 +6,7 @@ import bookings from '../../../../data/bookings.json';
 import packages from '../../../../data/packages.json';
 import finance from '../../../../data/finance.json';
 import UpcomingDepartures from '@/components/agency/dashboard/UpcomingDepartures';
+import RecentBookings from '@/components/agency/dashboard/RecentBookings';
 /**
  * Agency Dashboard Overview Page
  */
@@ -72,6 +73,7 @@ export default function AgencyDashboardPage() {
       </div>
 
       <UpcomingDepartures agencyId={agencyId} />
+      <RecentBookings agencyId={agencyId} />
 
       {/* Placeholder Sections */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">

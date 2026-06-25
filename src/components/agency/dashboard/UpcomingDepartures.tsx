@@ -2,6 +2,7 @@
 
 import bookings from '../../../../data/bookings.json';
 import packages from '../../../../data/packages.json';
+//import agents from '../../../../data/agents.json';
 
 type Props = {
   agencyId: string;
@@ -14,14 +15,14 @@ export default function UpcomingDepartures({ agencyId }: Props) {
     .filter((booking) => booking.agency_id === agencyId)
     .sort((a, b) => new Date(a.departure_date).getTime() - new Date(b.departure_date).getTime());
 
-  const upcomingDepartureArr = departure.map((item) => {
-    const pkg = packages.find((pkg) => pkg.id === item.package_id);
+  const upcomingDepartureArr = departure.map((booking) => {
+    const pkg = packages.find((pkg) => pkg.id === booking.package_id);
 
     return {
-      id: item.id,
+      id: booking.id,
       packageName: pkg?.title,
-      departureDate: item.departure_date,
-      groupSize: item.group_size,
+      departureDate: booking.departure_date,
+      groupSize: booking.group_size,
       assignedGuide: 'Processing...',
     };
   });

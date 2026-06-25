@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import bookings from '../../../../data/bookings.json';
 import packages from '../../../../data/packages.json';
 import finance from '../../../../data/finance.json';
+import UpcomingDepartures from '@/components/agency/dashboard/UpcomingDepartures';
 /**
  * Agency Dashboard Overview Page
  */
@@ -21,9 +22,9 @@ const revenue = finance.income
   .filter((item) => isAgencyData(item.agency_id))
   .reduce((sum, item) => sum + item.amount, 0);
 
-const pendingInquiries = bookings.filter((booking) => isAgencyData(booking.agency_id) && booking.status === 'inquiry');
-
-const totalPendingInquiries = pendingInquiries.length;
+const pendingInquiries = bookings.filter(
+  (booking) => isAgencyData(booking.agency_id) && booking.status === 'inquiry'
+).length;
 
 export default function AgencyDashboardPage() {
   const router = useRouter();
@@ -66,9 +67,11 @@ export default function AgencyDashboardPage() {
         </div>
         <div className="rounded-lg border border-neutral-200 bg-white p-6">
           <h3 className="text-sm font-medium text-neutral-600">Pending Actions</h3>
-          <p className="mt-2 text-3xl font-bold text-neutral-900">{totalPendingInquiries}</p>
+          <p className="mt-2 text-3xl font-bold text-neutral-900">{pendingInquiries}</p>
         </div>
       </div>
+
+      <UpcomingDepartures agencyId={agencyId} />
 
       {/* Placeholder Sections */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">

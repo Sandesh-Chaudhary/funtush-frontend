@@ -21,18 +21,19 @@ export interface Staff {
 }
 
 export function useStaff() {
-  const [staff, setStaff] = useState<Staff[]>([]);
+  const [staff, setStaff] = useState<Staff[]>(() => {
+    if (typeof window === 'undefined') {
+      return staffsData;
+    }
 
-  // Load from localStorage or seed
-  useEffect(() => {
     const stored = localStorage.getItem('staff');
     if (stored) {
-      setStaff(JSON.parse(stored));
-    } else {
-      setStaff(staffsData);
-      localStorage.setItem('staff', JSON.stringify(staffsData));
+      return JSON.parse(stored);
     }
-  }, []);
+
+    localStorage.setItem('staff', JSON.stringify(staffsData));
+    return staffsData;
+  });
 
   // Save to localStorage
   useEffect(() => {

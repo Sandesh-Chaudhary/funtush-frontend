@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import { useStaff } from '@/hooks/useStaff';
 import AddStaffModal from '@/components/agency/staff/AddStaffModal';
 import rolesData from '../../../../../data/roles.json';
@@ -21,7 +22,9 @@ export default function StaffPage() {
   const { staff, toggleActive, addStaff } = useStaff();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const handleAddStaff = (data: any) => {
+  type AddStaffData = Parameters<typeof addStaff>[0];
+
+  const handleAddStaff = (data: AddStaffData) => {
     addStaff(data);
   }
 
@@ -67,9 +70,9 @@ export default function StaffPage() {
                     href={`/dashboard/staff/${member.id}`}
                     className="flex items-center gap-3 hover:text-blue-600"
                   >
-                    <div className="w-8 h-8 rounded-full bg-neutral-200 overflow-hidden flex-shrink-0">
+                    <div className="w-8 h-8 rounded-full bg-neutral-200 overflow-hidden shrink-0">
                       {member.avatar && (
-                        <img src={member.avatar} alt={member.name} className="w-full h-full object-cover" />
+                        <Image src={member.avatar} alt={member.name} className="w-full h-full object-cover" />
                       )}
                     </div>
                     <span className="font-medium">{member.name}</span>

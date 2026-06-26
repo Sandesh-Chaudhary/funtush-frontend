@@ -4,6 +4,8 @@ import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import { useStaff } from "@/hooks/useStaff";
 import rolesData from '../../../../../../data/roles.json';
+import Link from "next/link";
+import Image from "next/image";
 
 const formatTime = (timestamp: string) => {
   const date = new Date(timestamp);
@@ -18,7 +20,7 @@ const getRoleLabel = (roleValue:string) => {
 export default function StaffDetailPage() {
   const {id} = useParams<{id: string}>();
   const router = useRouter();
-  const {getStaff, updateStaff, deleteStaff, toggleActive } = useStaff();
+  const {getStaff, updateStaff, toggleActive } = useStaff();
   const [showDeactivateModal, setShowDeactivateModal] = useState(false);
   const [newRole, setNewRole] = useState('');
 
@@ -52,15 +54,15 @@ export default function StaffDetailPage() {
   return (
     <div className="p-4 max-w-3xl mx-auto">
       {/* Back link */}
-      <a href="/dashboard/staff" className="text-sm text-blue-600 hover:underline mb-4 inline-block">
+      <Link href="/dashboard/staff" className="text-sm text-blue-600 hover:underline mb-4 inline-block">
         ← Back to Staff
-      </a>
+      </Link>
 
       {/* Profile Card */}
       <div className="bg-white border border-neutral-200 rounded-lg p-6 space-y-6">
         <div className="flex items-start gap-4">
-          <div className="w-20 h-20 rounded-full bg-neutral-200 overflow-hidden flex-shrink-0">
-            {staff.avatar && <img src={staff.avatar} alt={staff.name} className="w-full h-full object-cover" />}
+          <div className="w-20 h-20 rounded-full bg-neutral-200 overflow-hidden shrink-0">
+            {staff.avatar && <Image src={staff.avatar} alt={staff.name} className="w-full h-full object-cover" />}
           </div>
           <div className="flex-1">
             <h1 className="text-2xl font-bold text-black">{staff.name}</h1>

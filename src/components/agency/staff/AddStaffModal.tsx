@@ -3,10 +3,17 @@
 import { useState } from 'react';
 import rolesData from '../../../../data/roles.json';
 
+interface StaffData {
+  name: string;
+  email: string;
+  phone: string;
+  role: string;
+}
+
 interface AddStaffModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onAdd: (data: any) => void;
+  onAdd: (data: StaffData) => void;
 }
 
 export default function AddStaffModal({ isOpen, onClose, onAdd }: AddStaffModalProps) {

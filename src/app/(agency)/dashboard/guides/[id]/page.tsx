@@ -1,6 +1,8 @@
 import { notFound } from "next/navigation";
+import Image from "next/image";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui";
 import guidesData from "../../../../../../data/guides.json";
+import Link from "next/link";
 
 
 const statusMap: Record<string, { label: string; color: string }> = {
@@ -24,12 +26,12 @@ export default async function GuideDetailPage({
   return (
     <div className="p-4 max-w-3xl mx-auto">
       {/* Back link */}
-      <a
+      <Link
         href="/dashboard/guides"
         className="text-sm text-blue-600 hover:underline mb-4 inline-block"
       >
         ← Back to Guides
-      </a>
+      </Link>
 
       <Card className="space-y-4">
         {/* Header */}
@@ -37,7 +39,7 @@ export default async function GuideDetailPage({
           <div className="flex items-center gap-4">
             <div className="w-20 h-20 rounded-full bg-neutral-200 overflow-hidden shrink-0">
               {guide.photo && (
-                <img
+                <Image
                   src={guide.photo}
                   alt={guide.name}
                   className="w-full h-full object-cover"

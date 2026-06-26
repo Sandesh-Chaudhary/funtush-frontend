@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import Image from "next/image";
 import {
   Card,
   CardHeader,
@@ -122,7 +123,7 @@ export default function GuidesPage(){
                 <CardHeader className="flex flex-row items-center gap-3">
                   <div className="w-12 h-12 rounded-full bg-neutral-200 shrink-0 overflow-hidden">
                     {guide.photo && (
-                      <img src={guide.photo} alt={guide.name} className="w-full h-full object-cover" />
+                      <Image src={guide.photo} alt={guide.name} className="w-full h-full object-cover" />
                     )}
                   </div>
                   <div>

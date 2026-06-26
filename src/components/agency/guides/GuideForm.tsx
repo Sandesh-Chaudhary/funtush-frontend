@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui";
+import type { NewGuide } from "@/hooks/useGuides";
 
 interface Certification {
   name: string;
@@ -12,9 +13,30 @@ interface Certification {
   document?: string;
 }
 
+interface UpcomingAssignment {
+  id: string;
+  title?: string;
+  date?: string;
+  status?: string;
+}
+
+interface Guide {
+  name: string;
+  email?: string;
+  phone?: string;
+  photo?: string;
+  bio?: string;
+  languages?: string[];
+  certifications?: Certification[];
+  status?: string;
+  rating?: number;
+  totalTreks?: number;
+  upcomingAssignments?: UpcomingAssignment[];
+}
+
 interface GuideFormProps {
-  initialData?: any; //pre-fill data when editing
-  onSave: (data: any) => void; //called when form is submitted
+  initialData?: Guide; //pre-fill data when editing
+  onSave: (data: NewGuide) => void; //called when form is submitted
   isNew?: boolean; //changes the submit button text
 }
 
@@ -23,31 +45,18 @@ export default function GuideForm({
   onSave,
   isNew = false,
 }: GuideFormProps) {
+  const getInitialCertifications = () =>
+    initialData?.certifications?.length
+      ? initialData.certifications
+      : [{ name: "", issuingBody: "", number: "", expiry: "" }];
 
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
-  const [photo, setPhoto] = useState("");
-  const [bio, setBio] = useState("");
-  const [languages, setLanguages] = useState<string[]>([]);
-  const [certifications, setCertifications] = useState<Certification[]>([
-    { name: "", issuingBody: "", number: "", expiry: "" },
-  ]);
-
-  //fill form if editing
-  useEffect(() => {
-    if (initialData) {
-      setName(initialData.name || "");
-      setEmail(initialData.email || "");
-      setPhone(initialData.phone || "");
-      setPhoto(initialData.photo || "");
-      setBio(initialData.bio || "");
-      setLanguages(initialData.languages || "");
-      if (initialData.certifications?.length) {
-        setCertifications(initialData.certifications);
-      }
-    }
-  }, [initialData]);
+  const [name, setName] = useState(initialData?.name || "");
+  const [email, setEmail] = useState(initialData?.email || "");
+  const [phone, setPhone] = useState(initialData?.phone || "");
+  const [photo, setPhoto] = useState(initialData?.photo || "");
+  const [bio, setBio] = useState(initialData?.bio || "");
+  const [languages, setLanguages] = useState<string[]>(initialData?.languages || []);
+  const [certifications, setCertifications] = useState<Certification[]>(getInitialCertifications);
 
   const languageOptions = [
     "English",
@@ -192,7 +201,7 @@ export default function GuideForm({
                 );
                 setLanguages(selected);
               }}
-              className="mt-1 block w-full border border-neutral-300 rounded px-3 py-1.5 text-sm h-auto min-h-[80px]"
+              className="mt-1 block w-full border border-neutral-300 rounded px-3 py-1.5 text-sm h-auto min-h-20"
             >
               {languageOptions.map((lang) => (
                 <option key={lang} value={lang}>

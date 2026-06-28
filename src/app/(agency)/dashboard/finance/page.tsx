@@ -3,6 +3,7 @@
 import finance from '../../../../../data/finance.json';
 import SummaryStatCard from '@/components/agency/finance/SummaryStatCard';
 import RecentTransactions from '@/components/agency/finance/RecentTransactions';
+import QuickLinks from '@/components/agency/finance/QuickLinks';
 
 const agencyId = 'ag-001';
 
@@ -32,6 +33,7 @@ export default function AgencyFinancePage() {
       />
 
       <RecentTransactions incomeArr={incomeArr} expensesArr={expensesArr} />
+      <QuickLinks />
     </div>
   );
 }

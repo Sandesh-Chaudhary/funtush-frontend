@@ -2,6 +2,7 @@
 
 import finance from '../../../../../data/finance.json';
 import SummaryStatCard from '@/components/agency/finance/SummaryStatCard';
+import MonthlyChart from '@/components/agency/finance/MonthlyChart';
 import RecentTransactions from '@/components/agency/finance/RecentTransactions';
 import QuickLinks from '@/components/agency/finance/QuickLinks';
 
@@ -25,13 +26,14 @@ const ouststandingInvoice = finance.invoices
 export default function AgencyFinancePage() {
   return (
     <div className="space-y-6 p-6">
+      <h2 className="text-2xl font-bold text-neutral-900">Finance Overview</h2>
       <SummaryStatCard
         totalIncome={totalIncome}
         totalExpenses={totalExpenses}
         netProfit={netProfit}
         outstandingInvoices={ouststandingInvoice}
       />
-
+      <MonthlyChart incomeArr={incomeArr} expensesArr={expensesArr} />
       <RecentTransactions incomeArr={incomeArr} expensesArr={expensesArr} />
       <QuickLinks />
     </div>

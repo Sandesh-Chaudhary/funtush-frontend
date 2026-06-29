@@ -4,13 +4,7 @@
 FROM node:24-alpine AS builder
 WORKDIR /app
 COPY package*.json ./
-RUN node -e " \
-  const fs = require('fs'); \
-  const lock = JSON.parse(fs.readFileSync('package-lock.json', 'utf8')); \
-  delete lock.packages['node_modules/@next/swc-win32-x64-msvc']; \
-  fs.writeFileSync('package-lock.json', JSON.stringify(lock, null, 2)); \
-  "
-RUN npm ci
+RUN npm install --ignore-scripts
 COPY . .
 RUN npm run build
 

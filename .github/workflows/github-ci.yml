@@ -26,7 +26,7 @@ jobs:
       #   run: npm pkg delete optionalDependencies.@next/swc-win32-x64-msvc || true
 
       - name: Install dependencies
-        run: npm install
+        run: npm install --omit=optional
 
       - name: Build project
         run: npm run build

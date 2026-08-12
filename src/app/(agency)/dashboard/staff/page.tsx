@@ -12,7 +12,6 @@ import {
   Trash2,
 } from "lucide-react";
 import { useStaff } from "@/hooks/useStaff";
-import AddStaffModal from "@/components/agency/staff/AddStaffModal";
 import { PERMISSION_SECTIONS, roleLabel, useRoles } from "@/hooks/useRoles";
 
 const initials = (name: string) =>
@@ -24,14 +23,12 @@ const initials = (name: string) =>
     .toUpperCase();
 
 export default function StaffPage() {
-  const { staff, toggleActive, addStaff, deleteStaff } = useStaff();
+  const { staff, toggleActive, deleteStaff } = useStaff();
   const { roles } = useRoles();
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedRoleId, setSelectedRoleId] = useState("");
   const selectedRole =
     roles.find((role) => role.id === selectedRoleId) ?? roles[0];
 
-  type AddStaffData = Parameters<typeof addStaff>[0];
   const removeStaff = (id: string) => {
     if (window.confirm("Remove this staff member?")) deleteStaff(id);
   };
@@ -56,12 +53,12 @@ export default function StaffPage() {
           >
             <Plus size={25} strokeWidth={2.5} /> Create Role
           </Link>
-          <button
-            onClick={() => setIsModalOpen(true)}
+          <Link
+            href="/dashboard/staff/new"
             className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary-600 px-5 py-3 text-sm font-semibold text-white shadow-sm hover:bg-primary-700"
           >
             <Plus size={22} /> Create Staff
-          </button>
+          </Link>
         </div>
       </header>
 
@@ -248,12 +245,6 @@ export default function StaffPage() {
           </tbody>
         </table>
       </section>
-
-      <AddStaffModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onAdd={(data: AddStaffData) => addStaff(data)}
-      />
     </div>
   );
 }

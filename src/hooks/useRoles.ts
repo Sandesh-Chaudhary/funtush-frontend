@@ -25,15 +25,17 @@ export function roleLabel(roleId: string, roles: Role[]) {
 export function useRoles() {
   const [roles, setRoles] = useState<Role[]>(() => {
     if (typeof window === 'undefined') return defaultRoles;
+
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
-      return saved ? JSON.parse(saved) : defaultRoles;
+      return saved ? (JSON.parse(saved) as Role[]) : defaultRoles;
     } catch {
       return defaultRoles;
     }
   });
 
   useEffect(() => {
+    if (typeof window === 'undefined') return;
     localStorage.setItem(STORAGE_KEY, JSON.stringify(roles));
   }, [roles]);
 
@@ -44,5 +46,14 @@ export function useRoles() {
     });
   };
 
-  return { roles, saveRole, getRole: (id: string) => roles.find((role) => role.id === id) };
+  const deleteRole = (id: string) => {
+    setRoles((current) => current.filter((role) => role.id !== id));
+  };
+
+  return {
+    roles,
+    saveRole,
+    deleteRole,
+    getRole: (id: string) => roles.find((role) => role.id === id),
+  };
 }

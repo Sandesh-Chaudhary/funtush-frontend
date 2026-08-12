@@ -34,22 +34,21 @@ export type NewGuide = Omit<Guide, 'id'>;
 
 export function useGuides() {
     const [guides, setGuides] = useState<Guide[]>(() => {
-        if (typeof window === 'undefined') {
+        if (typeof window === 'undefined') return guidesData;
+
+        try {
+            const stored = localStorage.getItem('guides');
+            return stored ? (JSON.parse(stored) as Guide[]) : guidesData;
+        } catch {
             return guidesData;
         }
-
-        const stored = localStorage.getItem('guides');
-        if(stored) {
-            return JSON.parse(stored);
-        }
-
-        return guidesData;
     });
 
     //save to localStorage
     useEffect(() => {
+        if (typeof window === 'undefined') return;
         localStorage.setItem('guides', JSON.stringify(guides));
-    },[guides]);
+    }, [guides]);
 
     const addGuide = (newGuide: NewGuide) => {
         const id = `gd-${Date.now()}`;

@@ -174,6 +174,7 @@ export default function PackagesPage() {
           </button>
           <button
             type="button"
+            onClick={()=> router.push('/dashboard/packages/new')}
             className="inline-flex items-center gap-2 rounded-2xl bg-primary-900 px-3 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-800 shadow-sm"
           >
             <Add className="h-4 w-4 text-current" />

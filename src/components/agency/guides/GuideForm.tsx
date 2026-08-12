@@ -328,40 +328,6 @@ export default function GuideForm({
 
       <section
         className="mt-7 border-t border-neutral-200 pt-5"
-        aria-labelledby="languages-heading"
-      >
-        <h2
-          id="languages-heading"
-          className="text-base font-bold text-neutral-900"
-        >
-          Languages
-        </h2>
-        <p className="mt-1 text-sm text-neutral-500">
-          Select every language the guide can confidently support guests in.
-        </p>
-        <div className="mt-4 flex flex-wrap gap-2">
-          {languageOptions.map((language) => {
-            const selected = languages.includes(language);
-            return (
-              <label
-                key={language}
-                className={`cursor-pointer rounded-full border px-3 py-1.5 text-sm font-medium transition ${selected ? "border-primary-600 bg-primary-50 text-primary-800" : "border-neutral-300 bg-white text-neutral-600 hover:border-primary-300"}`}
-              >
-                <input
-                  className="sr-only"
-                  type="checkbox"
-                  checked={selected}
-                  onChange={() => toggleLanguage(language)}
-                />
-                {language}
-              </label>
-            );
-          })}
-        </div>
-      </section>
-
-      <section
-        className="mt-7 border-t border-neutral-200 pt-5"
         aria-labelledby="certifications-heading"
       >
         <div className="flex flex-wrap items-start justify-between gap-3">

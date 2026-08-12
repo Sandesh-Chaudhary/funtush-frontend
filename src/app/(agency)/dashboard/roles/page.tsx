@@ -6,14 +6,22 @@ import {
   ChevronRight,
   Plus,
   ShieldCheck,
+  Trash2,
   Users,
 } from "lucide-react";
 import { useRoles } from "@/hooks/useRoles";
 import { useStaff } from "@/hooks/useStaff";
 
 export default function RolesPage() {
-  const { roles } = useRoles();
+  const { roles, deleteRole } = useRoles();
   const { staff } = useStaff();
+
+  const handleDelete = (roleId: string, roleName: string) => {
+    if (window.confirm(`Delete the ${roleName} role? This cannot be undone.`)) {
+      deleteRole(roleId);
+    }
+  };
+
   return (
     <div className="mx-auto max-w-6xl">
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
@@ -88,12 +96,22 @@ export default function RolesPage() {
                   {summary}
                 </p>
               </div>
-              <Link
-                href={`/dashboard/roles/${role.id}`}
-                className="h-fit rounded-lg bg-primary-50 px-3 py-1.5 text-xs font-bold text-primary-700 hover:bg-primary-100"
-              >
-                Edit
-              </Link>
+              <div className="flex h-fit items-center gap-2">
+                <Link
+                  href={`/dashboard/roles/${role.id}`}
+                  className="rounded-lg bg-primary-50 px-3 py-1.5 text-xs font-bold text-primary-700 hover:bg-primary-100"
+                >
+                  Edit
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => handleDelete(role.id, role.name)}
+                  className="inline-flex items-center gap-1 rounded-lg bg-danger-50 px-3 py-1.5 text-xs font-bold text-danger-700 hover:bg-danger-100"
+                  aria-label={`Delete ${role.name}`}
+                >
+                  <Trash2 size={14} /> Delete
+                </button>
+              </div>
             </article>
           );
         })}

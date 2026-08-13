@@ -1,299 +1,278 @@
 'use client';
 
-/**
- * Login Page
- */
-
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useState } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
-import { Eye, EyeOff } from 'lucide-react';
-
-import { saveSessionEverywhere, ROLE_REDIRECT } from '@/lib/auth';
-import { ROUTES } from '@/lib/constants/routes';
-import type { RawUser, SessionUser } from '@/types/user';
-
-import usersData from '../../../../data/users.json';
-
-const users = usersData as RawUser[];
+import {
+  Eye,
+  EyeOff,
+  MapPin,
+  AlertTriangle,
+  ShoppingBag,
+  Check,
+  Mountain,
+} from 'lucide-react';
 
 export default function LoginPage() {
-  const router = useRouter();
-
+  const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
 
-  const [emailError, setEmailError] = useState('');
-  const [passwordError, setPasswordError] = useState('');
-  const [formError, setFormError] = useState('');
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Add authentication logic here
+  };
 
-  const [isLoading, setIsLoading] = useState(false);
-
-  function validateEmail(value: string): string {
-    if (!value) return 'Email is required';
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) return 'Please enter a valid email address';
-    return '';
-  }
-
-  function validatePassword(value: string): string {
-    if (!value) return 'Password is required';
-    if (value.length < 8) return 'Password must be at least 8 characters';
-    return '';
-  }
-
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setFormError('');
-
-    const emailErr = validateEmail(email);
-    const passwordErr = validatePassword(password);
-    setEmailError(emailErr);
-    setPasswordError(passwordErr);
-    if (emailErr || passwordErr) return;
-
-    setIsLoading(true);
-
-    try {
-      await new Promise((r) => setTimeout(r, 400));
-
-      const foundUser = users.find(
-        (u) => u.email === email && u.password === password
-      );
-
-      if (!foundUser) {
-        setFormError('Invalid email or password');
-        setIsLoading(false);
-        return;
-      }
-
-      const session: SessionUser = {
-        id: foundUser.id,
-        role: foundUser.role,
-        agency_id: foundUser.agency_id,
-        name: foundUser.name,
-        email: foundUser.email,
-        country: foundUser.country,
-        phone: foundUser.phone,
-        member_since: foundUser.member_since,
-        token: `mock-jwt-${foundUser.id}-${Date.now()}`,
-      };
-
-      saveSessionEverywhere(session);
-      router.push(ROLE_REDIRECT[foundUser.role]);
-    } catch {
-      setFormError('Something went wrong. Please try again.');
-      setIsLoading(false);
-    }
-  }
+  const toggleRememberMe = () => {
+    setRememberMe((prev) => !prev);
+  };
 
   return (
-    <div className="grid min-h-screen w-full grid-cols-1 bg-white md:grid-cols-2">
+    <div className="flex min-h-screen w-full items-center justify-center bg-slate-100/70 p-4 sm:p-6 lg:p-8 select-none">
+      {/* Outer Card Container with 1:2 Ratio & Curved Corners */}
+      <div className="flex w-full max-w-5xl overflow-hidden rounded-3xl bg-white shadow-2xl border border-slate-200/60">
+        
+        {/* Left Branding Panel (1/3 Width Ratio) */}
+        <div className="relative hidden w-1/3 flex-col justify-between bg-[#635BFF] p-8 text-white md:flex">
+          {/* Top Left Decorative Arc */}
+          <div className="absolute top-0 left-0 h-20 w-20 rounded-br-full bg-white/10" />
 
-      {/* LEFT — Mountain Image*/}
-      <div className="relative hidden min-h-screen md:block">
-        <Image
-          src="/mountain.png"
-          alt="Mountain scenery"
-          fill
-          priority
-          className="object-cover"
-          sizes="50vw"
-        />
-      </div>
+          {/* Brand Header */}
+          <div className="relative z-10 flex items-center gap-2.5">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-[#635BFF]">
+              <Mountain className="h-5 w-5 fill-current" />
+            </div>
+            <span className="text-2xl font-extrabold tracking-wide uppercase">
+              FUNTUSH
+            </span>
+          </div>
 
-      {/* RIGHT — Sign In Form*/}
-      <div className="flex min-h-screen items-center justify-center bg-white px-6 py-12 sm:px-12 lg:px-20">
-
-        <div className="w-full max-w-md">
-
-          {/* ── Brand ── */}
-          <div className="text-center">
-            <h1 className="text-4xl font-bold text-primary-600">
-              Green Agency
+          {/* Main Copy */}
+          <div className="relative z-10 my-auto space-y-4 py-6">
+            <h1 className="text-xl font-bold leading-snug">
+              Your treks, your guide contacts, your safety, all in one place.
             </h1>
-            <p className="mt-2 text-base text-neutral-500">
-              Manage your treks with ease
+            <p className="text-xs font-normal text-white/80 leading-relaxed">
+              Log in to see your upcoming departures, chat with your guide, and access live SOS during your trek.
             </p>
+
+            {/* Feature Badges Container */}
+            <div className="flex flex-col gap-3 rounded-xl bg-white/10 p-4 backdrop-blur-md">
+              <div className="flex items-center gap-2.5">
+                <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-white/15">
+                  <MapPin className="h-3.5 w-3.5 text-white" />
+                </div>
+                <span className="text-xs font-medium text-white">
+                  Real-time trek tracking
+                </span>
+              </div>
+
+              <div className="flex items-center gap-2.5">
+                <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-white/15">
+                  <AlertTriangle className="h-3.5 w-3.5 text-white" />
+                </div>
+                <span className="text-xs font-medium text-white">
+                  One-tap emergency SOS
+                </span>
+              </div>
+
+              <div className="flex items-center gap-2.5">
+                <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-white/15">
+                  <ShoppingBag className="h-3.5 w-3.5 text-white" />
+                </div>
+                <span className="text-xs font-medium text-white">
+                  Digital packing checklist
+                </span>
+              </div>
+            </div>
           </div>
 
-          {/* ── Form Title ── */}
-          <h2 className="mt-10 text-lg font-bold text-neutral-900">
-            Welcome Back
-          </h2>
+          {/* Footer Spacer */}
+          <div />
+        </div>
 
-          {/* ── Form ── */}
-          <form onSubmit={handleSubmit} noValidate className="mt-4 space-y-4">
-
-            {formError && (
-              <div className="rounded-lg bg-danger-50 px-4 py-3 text-sm text-danger-700">
-                {formError}
-              </div>
-            )}
-
-            {/* Email */}
-            <div>
-              <label htmlFor="email" className="block text-sm font-semibold text-neutral-900">
-                Email
-              </label>
-              <input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => {
-                  setEmail(e.target.value);
-                  if (emailError) setEmailError('');
-                }}
-                onBlur={() => setEmailError(validateEmail(email))}
-                placeholder="name@company.com"
-                autoComplete="email"
-                className={`mt-1 w-full rounded-lg border bg-white px-4 py-2.5 text-sm text-neutral-900 outline-none transition-colors
-                  placeholder:text-neutral-400
-                  focus:ring-2
-                  ${
-                    emailError
-                      ? 'border-danger-400 focus:border-danger-500 focus:ring-danger-100'
-                      : 'border-neutral-300 focus:border-primary-500 focus:ring-primary-100'
-                  }`}
-              />
-              {emailError && (
-                <p className="mt-1 text-xs text-danger-600">{emailError}</p>
-              )}
+        {/* Right Form Panel (2/3 Width Ratio) */}
+        <div className="flex w-full flex-col justify-center px-6 py-10 md:w-2/3 md:px-12 lg:px-16">
+          <div className="mx-auto w-full max-w-md">
+            {/* Header */}
+            <div className="mb-6">
+              <h2 className="text-2xl font-extrabold text-neutral-900">
+                Welcome Back
+              </h2>
+              <p className="mt-1 text-xs font-normal text-neutral-400">
+                Log in to your Funtush trekker account
+              </p>
             </div>
 
-            {/* Password */}
-            <div>
-              <label htmlFor="password" className="block text-sm font-semibold text-neutral-900">
-                Password
-              </label>
-              <div className="relative mt-1">
-                <input
-                  id="password"
-                  type={showPassword ? 'text' : 'password'}
-                  value={password}
-                  onChange={(e) => {
-                    setPassword(e.target.value);
-                    if (passwordError) setPasswordError('');
-                  }}
-                  onBlur={() => setPasswordError(validatePassword(password))}
-                  placeholder="••••••••••••"
-                  autoComplete="current-password"
-                  className={`w-full rounded-lg border bg-white px-4 py-2.5 pr-11 text-sm text-neutral-900 outline-none transition-colors
-                    placeholder:text-neutral-400
-                    focus:ring-2
-                    ${
-                      passwordError
-                        ? 'border-danger-400 focus:border-danger-500 focus:ring-danger-100'
-                        : 'border-neutral-300 focus:border-primary-500 focus:ring-primary-100'
-                    }`}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword((prev) => !prev)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-500 hover:text-neutral-700"
-                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+            {/* Form */}
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {/* Email Input */}
+              <div>
+                <label
+                  htmlFor="email"
+                  className="block text-xs font-bold text-neutral-800"
                 >
-                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </button>
+                  Email
+                </label>
+                <input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="name@company.com"
+                  required
+                  className="mt-1.5 w-full rounded-lg border border-neutral-200 px-3.5 py-2.5 text-xs text-neutral-800 placeholder-neutral-400 outline-none transition focus:border-[#635BFF] focus:ring-2 focus:ring-[#635BFF]/20"
+                />
               </div>
-              {passwordError && (
-                <p className="mt-1 text-xs text-danger-600">{passwordError}</p>
-              )}
-            </div>
 
-            {/* Forgot password */}
-            <div className="flex justify-end">
-              <Link
-                href={ROUTES.AUTH.FORGOT_PASSWORD}
-                className="text-xs font-medium text-primary-600 hover:text-primary-700"
+              {/* Password Input */}
+              <div>
+                <label
+                  htmlFor="password"
+                  className="block text-xs font-bold text-neutral-800"
+                >
+                  Password
+                </label>
+                <div className="relative mt-1.5">
+                  <input
+                    id="password"
+                    type={showPassword ? 'text' : 'password'}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••••••"
+                    required
+                    className="w-full rounded-lg border border-neutral-200 px-3.5 py-2.5 text-xs text-neutral-800 placeholder-neutral-400 outline-none transition focus:border-[#635BFF] focus:ring-2 focus:ring-[#635BFF]/20"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 focus:outline-none"
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              {/* Remember Me & Forgot Password */}
+              <div className="flex items-center justify-between pt-1">
+                <div
+                  onClick={toggleRememberMe}
+                  className="group flex cursor-pointer items-center gap-2 select-none"
+                >
+                  <button
+                    type="button"
+                    role="checkbox"
+                    aria-checked={rememberMe}
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if (e.key === ' ' || e.key === 'Enter') {
+                        e.preventDefault();
+                        toggleRememberMe();
+                      }
+                    }}
+                    className={`flex h-4 w-4 flex-shrink-0 items-center justify-center rounded border transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-[#635BFF]/30 ${
+                      rememberMe
+                        ? 'border-[#635BFF] bg-[#635BFF] text-white'
+                        : 'border-neutral-300 bg-white group-hover:border-[#635BFF]'
+                    }`}
+                  >
+                    {rememberMe && <Check className="h-3 w-3 stroke-[3]" />}
+                  </button>
+                  <span className="text-xs font-medium text-neutral-700 transition-colors group-hover:text-neutral-900">
+                    Remember me
+                  </span>
+                </div>
+
+                <Link
+                  href="/forgot-password"
+                  className="text-xs font-semibold text-[#635BFF] hover:underline"
+                >
+                  Forgot Password?
+                </Link>
+              </div>
+
+              {/* Sign In Button */}
+              <button
+                type="submit"
+                className="mt-2 w-full rounded-xl bg-[#635BFF] py-3 text-xs font-bold text-white shadow-md shadow-[#635BFF]/20 transition hover:bg-[#5249e0] active:scale-[0.99]"
               >
-                Forgot Password?
-              </Link>
+                Sign in
+              </button>
+            </form>
+
+            {/* Divider */}
+            <div className="relative my-5 flex items-center justify-center">
+              <div className="w-full border-t border-neutral-200" />
+              <span className="absolute bg-white px-3 text-[10px] text-neutral-400">
+                or continue with
+              </span>
             </div>
 
-            {/* Submit button */}
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="mt-6 w-full rounded-lg bg-primary-600 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-60"
-            >
-              {isLoading ? 'Signing in...' : 'Sign in'}
-            </button>
-          </form>
+            {/* Social Logins */}
+            <div className="flex items-center justify-center gap-3">
+              {/* Apple */}
+              <button
+                type="button"
+                className="flex h-9 w-9 items-center justify-center rounded-full border border-neutral-200 text-neutral-800 transition hover:bg-neutral-50"
+              >
+                <svg className="h-4 w-4 fill-current" viewBox="0 0 24 24">
+                  <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.09c.67-.81 1.13-1.94.99-3.09-1 .04-2.22.67-2.92 1.48-.62.72-1.16 1.88-1.01 3 1.11.09 2.26-.58 2.94-1.39z" />
+                </svg>
+              </button>
 
-          {/* ── Divider ── */}
-          <div className="mt-6 text-center">
-            <p className="text-xs text-neutral-500">or continue with</p>
+              {/* Google */}
+              <button
+                type="button"
+                className="flex h-9 w-9 items-center justify-center rounded-full border border-neutral-200 transition hover:bg-neutral-50"
+              >
+                <svg className="h-4 w-4" viewBox="0 0 24 24">
+                  <path
+                    fill="#4285F4"
+                    d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                  />
+                  <path
+                    fill="#34A853"
+                    d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                  />
+                  <path
+                    fill="#FBBC05"
+                    d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
+                  />
+                  <path
+                    fill="#EA4335"
+                    d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
+                  />
+                </svg>
+              </button>
+
+              {/* Facebook */}
+              <button
+                type="button"
+                className="flex h-9 w-9 items-center justify-center rounded-full border border-neutral-200 text-[#1877F2] transition hover:bg-neutral-50"
+              >
+                <svg className="h-4 w-4 fill-current" viewBox="0 0 24 24">
+                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Footer Link */}
+            <div className="mt-6 text-center text-xs text-neutral-600">
+  New to Funtush?{' '}
+  <Link
+    href="/signup"
+    className="font-semibold text-[#635BFF] hover:underline"
+  >
+    Create an account
+  </Link>
+</div>
           </div>
-
-          {/* ── Social Login (Visual Only) ── */}
-          <div className="mt-4 flex justify-center gap-4">
-            <SocialButton icon={<AppleIcon />} label="Apple" />
-            <SocialButton icon={<GoogleIcon />} label="Google" />
-            <SocialButton icon={<FacebookIcon />} label="Facebook" />
-          </div>
-
-          {/* ── Bottom Link ── */}
-          <p className="mt-8 text-center text-xs text-neutral-700">
-            Don&apos;t have an account?{' '}
-            <Link
-              href="/register"
-              className="font-semibold text-primary-600 hover:underline"
-            >
-              Sign Up
-            </Link>
-          </p>
-
         </div>
       </div>
     </div>
-  );
-}
-
-// ─── Social Button ────────────────────────────
-
-function SocialButton({ icon, label }: { icon: React.ReactNode; label: string }) {
-  return (
-    <button
-      type="button"
-      aria-label={`Continue with ${label}`}
-      className="flex h-11 w-11 items-center justify-center rounded-full border border-neutral-200 bg-white shadow-sm transition-all hover:border-neutral-300 hover:shadow-md"
-    >
-      {icon}
-    </button>
-  );
-}
-
-// ─── Apple Icon ──────────────────────────────
-
-function AppleIcon() {
-  return (
-    <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z" />
-    </svg>
-  );
-}
-
-// ─── Google Icon ─────────────────────────────
-
-function GoogleIcon() {
-  return (
-    <svg className="h-5 w-5" viewBox="0 0 24 24">
-      <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-      <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-      <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
-      <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
-    </svg>
-  );
-}
-
-// ─── Facebook Icon ───────────────────────────
-
-function FacebookIcon() {
-  return (
-    <svg className="h-5 w-5" viewBox="0 0 24 24" fill="#1877F2">
-      <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-    </svg>
   );
 }

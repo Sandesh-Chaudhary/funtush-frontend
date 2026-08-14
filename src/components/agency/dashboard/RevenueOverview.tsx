@@ -72,10 +72,10 @@ export default function RevenueOverview({ agencyId }: Props) {
   getDisplayableData('expenses', expenseArr, chartdata);
 
   return (
-    <section className="lg:min-w-[500px] lg:min-h-[305px] flex flex-col gap-y-8 rounded-sm bg-[#fff] px-[12px] py-[15px] shadow-sm">
+    <section className="w-full flex flex-col gap-y-8 rounded-sm bg-[#fff] p-3 shadow-sm lg:col-span-2  xl:min-w-[500px] xl:min-h-[305px] xl:col-span-1">
       <div className="flex justify-between">
         <div className="flex flex-col gap-2">
-          <h3 className="font-roboto font-semibold text-sm">Revenue Overview</h3>
+          <h3 className="font-semibold text-sm">Revenue Overview</h3>
           <div className="flex gap-2">
             <label htmlFor="months"></label>
             <select
@@ -83,7 +83,7 @@ export default function RevenueOverview({ agencyId }: Props) {
               id="months"
               value={selectedMonth}
               onChange={(e) => setSelectedMonth(e.target.value)}
-              className="text-[10px] border border-neutral-100 rounded px-[4px] py-[5px] gap-2 outline-none focus:ring-2 focus:ring-blue-500"
+              className="text-[10px] border border-neutral-100 rounded p-1 gap-2 outline-none hover:text-red-700 hover:bg-blue-50 focus:ring-2 focus:ring-blue-500"
             >
               {monthArr.map((month) => (
                 <option key={month} value={month}>
@@ -100,12 +100,12 @@ export default function RevenueOverview({ agencyId }: Props) {
           </div>
         </div>
         <div className="flex gap-2 items-center">
-          <div className="flex flex-col gap-1 items-center font-roboto font-semibold">
+          <div className="flex flex-col gap-1 items-center font-semibold">
             <p className="text-xl">{`Rs ${chartdata.reduce((sum, item) => sum + item.revenue, 0).toLocaleString()}`}</p>
             <p className="text-[10px]">Total Revenue</p>
           </div>
           <div className="w-[2px] h-full bg-[#625B71]"></div>
-          <div className="flex flex-col gap-1 items-center font-roboto font-semibold text-[#625B71]">
+          <div className="flex flex-col gap-1 items-center font-semibold text-[#625B71]">
             <p className="text-xl">{`Rs ${chartdata.reduce((sum, item) => sum + item.expenses, 0).toLocaleString()}`}</p>
             <p className="text-[10px]">Total Expenses</p>
           </div>

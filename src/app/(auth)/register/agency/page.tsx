@@ -1,24 +1,18 @@
 'use client';
 
 /**
- * Register page for Agency Admins
- * 
- * Agency admin sets up their business workspace
- * On submit: creates account with role='agency_admin', redirects to /dashboard
+ * Agency Registration Details Page
  */
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-
-import { ArrowLeft, Globe, Info } from 'lucide-react';
+import { ArrowLeft, Building2, Phone, Globe, Info, Check } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 import { AuthLeftPanel } from '@/components/auth/AuthLeftPanel';
 import { cn } from '@/lib/utils/cn';
 import { saveSessionEverywhere } from '@/lib/auth';
 import type { SessionUser } from '@/types/user';
-
-// ─── Types ─────────────────────────────────────
 
 interface SignupDraft {
   email: string;
@@ -27,8 +21,6 @@ interface SignupDraft {
 }
 
 const DRAFT_KEY = 'funtush_signup_draft';
-
-// ─── Helper: Generate Subdomain From Business Name ──
 
 function toSubdomain(name: string): string {
   return name
@@ -40,24 +32,10 @@ function toSubdomain(name: string): string {
     .slice(0, 30);
 }
 
-// ─── Component ─────────────────────────────────
-
 export default function AgencyWorkspacePage() {
   const router = useRouter();
 
-  const [draft] = useState<SignupDraft | null>(() => {
-    if (typeof window === 'undefined') return null;
-
-    try {
-      const raw = localStorage.getItem(DRAFT_KEY);
-      if (!raw) return null;
-
-      const parsed = JSON.parse(raw) as SignupDraft;
-      return parsed.role === 'agency' ? parsed : null;
-    } catch {
-      return null;
-    }
-  });
+  const [draft, setDraft] = useState<SignupDraft | null>(null);
   const [businessName, setBusinessName] = useState('');
   const [phone, setPhone] = useState('');
   const [country, setCountry] = useState('');
@@ -71,11 +49,25 @@ export default function AgencyWorkspacePage() {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    if (!draft) {
+    const raw = localStorage.getItem(DRAFT_KEY);
+    if (!raw) {
       toast.error('Please start signup from the beginning');
       router.push('/register');
+      return;
     }
-  }, [draft, router]);
+
+    try {
+      const parsed = JSON.parse(raw) as SignupDraft;
+      if (parsed.role !== 'agency') {
+        router.push('/register/trekker');
+        return;
+      }
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setDraft(parsed);
+    } catch {
+      router.push('/register');
+    }
+  }, [router]);
 
   function validate() {
     const newErrors: typeof errors = {};
@@ -84,10 +76,10 @@ export default function AgencyWorkspacePage() {
     else if (businessName.trim().length < 2) newErrors.businessName = 'Name too short';
 
     if (!phone.trim()) newErrors.phone = 'Phone number is required';
-    else{
-    const digitcount = phone.replace(/\D/g, '').length;
-    if (digitcount <7) newErrors.phone = 'Phone number must have at least 7 digits';
-    else if (digitcount > 15) newErrors.phone = 'Phone number must have at most 15 digits';
+    else {
+      const digitCount = phone.replace(/\D/g, '').length;
+      if (digitCount < 7) newErrors.phone = 'Phone must have at least 7 digits';
+      else if (digitCount > 15) newErrors.phone = 'Phone number too long';
     }
 
     if (!country.trim()) newErrors.country = 'Country is required';
@@ -106,7 +98,6 @@ export default function AgencyWorkspacePage() {
     try {
       await new Promise((r) => setTimeout(r, 700));
 
-      // Create mock session for agency admin
       const session: SessionUser = {
         id: `user-agency-${Date.now()}`,
         role: 'agency_admin',
@@ -136,168 +127,184 @@ export default function AgencyWorkspacePage() {
   const subdomain = businessName ? toSubdomain(businessName) : 'yourbusiness';
 
   if (!draft) {
-    return null; // will redirect
+    return null;
   }
 
   return (
-    <div className="grid min-h-screen w-full grid-cols-1 bg-white md:grid-cols-2">
+    <div className="flex min-h-screen items-center justify-center bg-neutral-100 px-4 py-8">
 
-      {/* LEFT — Purple Panel */}
-      <AuthLeftPanel />
+      {/* CENTERED CARD */}
+      <div className="grid w-full max-w-5xl overflow-hidden rounded-2xl bg-white shadow-xl md:grid-cols-2">
 
-      {/* RIGHT — Form */}
-      <div className="flex min-h-screen items-center justify-center bg-white px-6 py-12 sm:px-12 lg:px-20">
+        {/* LEFT — Purple Panel */}
+        <AuthLeftPanel
+          tagline="One account. Every trek, or your whole agency."
+          description="Tell us what you're here to do — the next step only asks for what actually applies to you."
+        />
 
-        <div className="w-full max-w-md">
+        {/* RIGHT — Form */}
+        <div className="flex items-center justify-center bg-white px-8 py-10 sm:px-12">
 
-          {/* ── Progress Bar ── */}
-          <ProgressBar step={2} labels={['Account', 'Workplace']} />
+          <div className="w-full max-w-sm">
 
-          {/* ── Back Link ── */}
-          <button
-            type="button"
-            onClick={() => router.back()}
-            className="mt-8 inline-flex items-center gap-1.5 text-sm font-medium text-neutral-500 transition hover:text-neutral-700"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back
-          </button>
+            {/* ── Progress Bar ── */}
+            <ProgressBar step={2} labels={['Account', 'Workplace']} />
 
-          {/* ── Title ── */}
-          <div className="mt-4">
-            <h2 className="text-3xl font-bold text-neutral-900">
-              Set up your agency
-            </h2>
-            <p className="mt-1 text-sm text-neutral-500">
-              This creates your workspace and a 14-day free trial
-            </p>
-          </div>
+            {/* ── Back Link ── */}
+            <button
+              type="button"
+              onClick={() => router.back()}
+              className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-neutral-500 transition hover:text-neutral-700"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Back
+            </button>
 
-          {/* ── Form ── */}
-          <form onSubmit={handleSubmit} noValidate className="mt-6 space-y-4">
-
-            {/* Business Name */}
-            <div>
-              <label htmlFor="businessName" className="block text-sm font-semibold text-neutral-900">
-                Business name
-              </label>
-              <input
-                id="businessName"
-                type="text"
-                value={businessName}
-                onChange={(e) => {
-                  setBusinessName(e.target.value);
-                  if (errors.businessName) setErrors((p) => ({ ...p, businessName: undefined }));
-                }}
-                placeholder="Himalayan Legends Treks"
-                autoComplete="organization"
-                className={cn(
-                  'mt-1 w-full rounded-lg border bg-white px-4 py-2.5 text-sm text-neutral-900 outline-none transition-colors',
-                  'placeholder:text-neutral-400 focus:ring-2',
-                  errors.businessName
-                    ? 'border-danger-400 focus:border-danger-500 focus:ring-danger-100'
-                    : 'border-neutral-300 focus:border-primary-500 focus:ring-primary-100'
-                )}
-              />
-              {errors.businessName && (
-                <p className="mt-1 text-xs text-danger-600">{errors.businessName}</p>
-              )}
-            </div>
-
-            {/* Subdomain Preview */}
-            <div className="rounded-lg border border-neutral-200 bg-neutral-50 px-4 py-3">
-              <div className="flex items-center gap-2 text-sm text-neutral-700">
-                <Globe className="h-4 w-4 text-neutral-500" />
-                <span>Your site will be </span>
-                <span className="font-semibold text-neutral-900">
-                  {subdomain}.funtush.com
-                </span>
-              </div>
-            </div>
-
-            {/* Phone + Country (2 columns) */}
-            <div className="grid gap-4 sm:grid-cols-2">
-              {/* Phone */}
-              <div>
-                <label htmlFor="phone" className="block text-sm font-semibold text-neutral-900">
-                  Phone Number
-                </label>
-                <input
-                  id="phone"
-                  type="tel"
-                  value={phone}
-                  onChange={(e) => {
-                    const value = e.target.value.replace(/[^\d+]/g, ''); 
-                    setPhone(value);
-                    if (errors.phone) setErrors((p) => ({ ...p, phone: undefined }));
-                  }}
-                  placeholder="+33 6 12 34 56 78"
-                  autoComplete="tel"
-                  className={cn(
-                    'mt-1 w-full rounded-lg border bg-white px-4 py-2.5 text-sm text-neutral-900 outline-none transition-colors',
-                    'placeholder:text-neutral-400 focus:ring-2',
-                    errors.phone
-                      ? 'border-danger-400 focus:border-danger-500 focus:ring-danger-100'
-                      : 'border-neutral-300 focus:border-primary-500 focus:ring-primary-100'
-                  )}
-                />
-                {errors.phone && (
-                  <p className="mt-1 text-xs text-danger-600">{errors.phone}</p>
-                )}
-              </div>
-
-              {/* Country */}
-              <div>
-                <label htmlFor="country" className="block text-sm font-semibold text-neutral-900">
-                  Country
-                </label>
-                <input
-                  id="country"
-                  type="text"
-                  value={country}
-                  onChange={(e) => {
-                    setCountry(e.target.value);
-                    if (errors.country) setErrors((p) => ({ ...p, country: undefined }));
-                  }}
-                  placeholder="Nepal"
-                  autoComplete="country-name"
-                  className={cn(
-                    'mt-1 w-full rounded-lg border bg-white px-4 py-2.5 text-sm text-neutral-900 outline-none transition-colors',
-                    'placeholder:text-neutral-400 focus:ring-2',
-                    errors.country
-                      ? 'border-danger-400 focus:border-danger-500 focus:ring-danger-100'
-                      : 'border-neutral-300 focus:border-primary-500 focus:ring-primary-100'
-                  )}
-                />
-                {errors.country && (
-                  <p className="mt-1 text-xs text-danger-600">{errors.country}</p>
-                )}
-              </div>
-            </div>
-
-            {/* Info Box */}
-            <div className="flex gap-3 rounded-lg bg-primary-50 px-4 py-3">
-              <Info className="h-5 w-5 shrink-0 text-primary-600" />
-              <p className="text-xs text-primary-700 leading-relaxed">
-                This creates a users record (role: <strong>agency_admin</strong>) and provisions a new agency tenant on the 14-day trial tier.
+            {/* ── Title ── */}
+            <div className="mt-4">
+              <h2 className="text-2xl font-bold text-neutral-900">
+                Set up your agency
+              </h2>
+              <p className="mt-1 text-sm text-neutral-500">
+                This creates your workspace and a 14-day free trial
               </p>
             </div>
 
-            {/* Submit Button */}
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="mt-4 w-full rounded-lg bg-primary-600 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-60"
-            >
-              {isLoading ? 'Creating workspace...' : 'Create agency workplace'}
-            </button>
-          </form>
+            {/* ── Form ── */}
+            <form onSubmit={handleSubmit} noValidate className="mt-6 space-y-4">
 
-          {/* ── Footer Note ── */}
-          <p className="mt-4 text-center text-sm text-neutral-500">
-            Next: a short onboarding wizard, then your dashboard.
-          </p>
+              {/* Business Name */}
+              <div>
+                <label htmlFor="businessName" className="block text-sm font-semibold text-neutral-900">
+                  Business name
+                </label>
+                <div className="relative mt-1">
+                  <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
+                  <input
+                    id="businessName"
+                    type="text"
+                    value={businessName}
+                    onChange={(e) => {
+                      setBusinessName(e.target.value);
+                      if (errors.businessName) setErrors((p) => ({ ...p, businessName: undefined }));
+                    }}
+                    placeholder="Himalayan Legends Treks"
+                    autoComplete="organization"
+                    className={cn(
+                      'w-full rounded-lg border bg-white pl-9 pr-4 py-2.5 text-sm text-neutral-900 outline-none transition-colors',
+                      'placeholder:text-neutral-400 focus:ring-2',
+                      errors.businessName
+                        ? 'border-danger-400 focus:border-danger-500 focus:ring-danger-100'
+                        : 'border-neutral-300 focus:border-primary-500 focus:ring-primary-100'
+                    )}
+                  />
+                </div>
+                {errors.businessName && (
+                  <p className="mt-1 text-xs text-danger-600">{errors.businessName}</p>
+                )}
+              </div>
 
+              {/* Subdomain Preview */}
+              <div className="rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2">
+                <div className="flex items-center gap-2 text-sm text-neutral-700">
+                  <Globe className="h-4 w-4 text-neutral-500" />
+                  <span className="text-xs">Your site will be </span>
+                  <span className="text-xs font-semibold text-neutral-900">
+                    {subdomain}.funtush.com
+                  </span>
+                </div>
+              </div>
+
+              {/* Phone + Country */}
+              <div className="grid gap-4 sm:grid-cols-2">
+                {/* Phone */}
+                <div>
+                  <label htmlFor="phone" className="block text-sm font-semibold text-neutral-900">
+                    Phone Number
+                  </label>
+                  <div className="relative mt-1">
+                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
+                    <input
+                      id="phone"
+                      type="tel"
+                      value={phone}
+                      onChange={(e) => {
+                        const value = e.target.value.replace(/[^\d\s+\-()]/g, '');
+                        setPhone(value);
+                        if (errors.phone) setErrors((p) => ({ ...p, phone: undefined }));
+                      }}
+                      placeholder="+33 6 12 34 56 78"
+                      autoComplete="tel"
+                      className={cn(
+                        'w-full rounded-lg border bg-white pl-9 pr-4 py-2.5 text-sm text-neutral-900 outline-none transition-colors',
+                        'placeholder:text-neutral-400 focus:ring-2',
+                        errors.phone
+                          ? 'border-danger-400 focus:border-danger-500 focus:ring-danger-100'
+                          : 'border-neutral-300 focus:border-primary-500 focus:ring-primary-100'
+                      )}
+                    />
+                  </div>
+                  {errors.phone && (
+                    <p className="mt-1 text-xs text-danger-600">{errors.phone}</p>
+                  )}
+                </div>
+
+                {/* Country */}
+                <div>
+                  <label htmlFor="country" className="block text-sm font-semibold text-neutral-900">
+                    Country
+                  </label>
+                  <div className="relative mt-1">
+                    <Globe className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
+                    <input
+                      id="country"
+                      type="text"
+                      value={country}
+                      onChange={(e) => {
+                        setCountry(e.target.value);
+                        if (errors.country) setErrors((p) => ({ ...p, country: undefined }));
+                      }}
+                      placeholder="Nepal"
+                      autoComplete="country-name"
+                      className={cn(
+                        'w-full rounded-lg border bg-white pl-9 pr-4 py-2.5 text-sm text-neutral-900 outline-none transition-colors',
+                        'placeholder:text-neutral-400 focus:ring-2',
+                        errors.country
+                          ? 'border-danger-400 focus:border-danger-500 focus:ring-danger-100'
+                          : 'border-neutral-300 focus:border-primary-500 focus:ring-primary-100'
+                      )}
+                    />
+                  </div>
+                  {errors.country && (
+                    <p className="mt-1 text-xs text-danger-600">{errors.country}</p>
+                  )}
+                </div>
+              </div>
+
+              {/* Info Box */}
+              <div className="flex gap-2 rounded-lg bg-primary-50 px-3 py-2.5">
+                <Info className="h-4 w-4 shrink-0 text-primary-600 mt-0.5" />
+                <p className="text-xs text-primary-700 leading-relaxed">
+                  This creates a users record (role: <strong>agency_admin</strong>) and provisions a new agency tenant on the 14-day trial tier.
+                </p>
+              </div>
+
+              {/* Submit Button */}
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="mt-2 w-full rounded-lg bg-primary-600 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-60"
+              >
+                {isLoading ? 'Creating workspace...' : 'Create agency workplace'}
+              </button>
+            </form>
+
+            {/* ── Footer Note ── */}
+            <p className="mt-4 text-center text-sm text-neutral-500">
+              Next: a short onboarding wizard, then your dashboard.
+            </p>
+
+          </div>
         </div>
       </div>
     </div>
@@ -317,7 +324,6 @@ function ProgressBar({ step, labels }: { step: number; labels: string[] }) {
 
         return (
           <div key={label} className="flex flex-1 items-center gap-3">
-            {/* Circle */}
             <div className="flex items-center gap-2">
               <div
                 className={cn(
@@ -329,7 +335,7 @@ function ProgressBar({ step, labels }: { step: number; labels: string[] }) {
                     : 'border-2 border-neutral-300 bg-white text-neutral-400'
                 )}
               >
-                {isCompleted ? '✓' : stepNumber}
+                {isCompleted ? <Check className="h-3 w-3" /> : stepNumber}
               </div>
               <span
                 className={cn(
@@ -341,7 +347,6 @@ function ProgressBar({ step, labels }: { step: number; labels: string[] }) {
               </span>
             </div>
 
-            {/* Connector Line */}
             {showLine && (
               <div className={cn(
                 'h-px flex-1',

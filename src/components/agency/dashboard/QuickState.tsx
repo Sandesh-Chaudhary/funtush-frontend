@@ -41,7 +41,6 @@ export default function QuickState() {
     <Box
       sx={{
         width: '100%',
-        maxWidth: 400,
         border: '1px solid #e5e7eb',
         borderRadius: 1,
         p: 3,

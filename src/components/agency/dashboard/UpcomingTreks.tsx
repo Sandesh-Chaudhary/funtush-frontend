@@ -50,9 +50,9 @@ export default function UpcomingTreks({ agencyId }: Props) {
     .slice(0, 4);
 
   return (
-    <section className="lg:min-w-[340px] lg:min-h-[305px] flex flex-col gap-4 pt-[16px] px-[6px] pb-[10px] rounded-sm bg-white">
+    <section className="lg:min-w-[340px] lg:min-h-[305px] flex flex-col gap-4 px-2 py-5 rounded-sm bg-white">
       <div className="flex justify-between items-center">
-        <h3 className="font-semibold text-sm leading-xl">Upcoming Treks</h3>
+        <h3 className="font-semibold text-sm">Upcoming Treks</h3>
         <Link
           href="/dashboard/packages"
           className="text-xs text-[#0D2DFC] font-semibold hover:translate-y-[-1px] hover:underline"
@@ -79,7 +79,7 @@ export default function UpcomingTreks({ agencyId }: Props) {
                 </div>
               </div>
               <p
-                className={`w-fit rounded-full px-2 py-1 text-sm font-semibold text-[11px] ${statusStyles[item.status as keyof typeof statusStyles]}`}
+                className={`w-fit rounded-full px-2 py-1 text-sm font-semibold text-xs ${statusStyles[item.status as keyof typeof statusStyles]}`}
               >
                 {item.status}
               </p>

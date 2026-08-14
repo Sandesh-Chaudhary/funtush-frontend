@@ -1,11 +1,19 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import defaultRoles from '../../data/roles.json';
+import { useEffect, useState } from "react";
+import defaultRoles from "../../data/roles.json";
 
 export const PERMISSION_SECTIONS = [
-  'Packages', 'Bookings', 'Customers', 'Guides', 'Staff',
-  'Finance', 'Analytics', 'Blog', 'Reviews', 'Settings',
+  "Packages",
+  "Bookings",
+  "Customers",
+  "Guides",
+  "Staff",
+  "Finance",
+  "Analytics",
+  "Blog",
+  "Reviews",
+  "Settings",
 ] as const;
 
 export type Permission = (typeof PERMISSION_SECTIONS)[number];
@@ -16,15 +24,18 @@ export interface Role {
   permissions: string[];
 }
 
-const STORAGE_KEY = 'agency-roles';
+const STORAGE_KEY = "agency-roles";
 
 export function roleLabel(roleId: string, roles: Role[]) {
-  return roles.find((role) => role.id === roleId)?.name ?? roleId.replace(/[_-]/g, ' ');
+  return (
+    roles.find((role) => role.id === roleId)?.name ??
+    roleId.replace(/[_-]/g, " ")
+  );
 }
 
 export function useRoles() {
   const [roles, setRoles] = useState<Role[]>(() => {
-    if (typeof window === 'undefined') return defaultRoles;
+    if (typeof window === "undefined") return defaultRoles;
 
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
@@ -35,15 +46,26 @@ export function useRoles() {
   });
 
   useEffect(() => {
-    if (typeof window === 'undefined') return;
+    if (typeof window === "undefined") return;
     localStorage.setItem(STORAGE_KEY, JSON.stringify(roles));
   }, [roles]);
 
   const saveRole = (role: Role) => {
-    setRoles((current) => {
-      const exists = current.some((item) => item.id === role.id);
-      return exists ? current.map((item) => item.id === role.id ? role : item) : [...current, role];
-    });
+    const exists = roles.some((item) => item.id === role.id);
+    const next = exists
+      ? roles.map((item) => (item.id === role.id ? role : item))
+      : [...roles, role];
+
+    
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+      } catch {
+        
+      }
+    }
+
+    setRoles(next);
   };
 
   const deleteRole = (id: string) => {

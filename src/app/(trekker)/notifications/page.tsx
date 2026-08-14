@@ -1,87 +1,106 @@
 'use client';
 
+/**
+ * Notifications Page 
+ */
 
-import { useState, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import {
   Bell,
   CheckCircle2,
-  UserPlus,
-  CreditCard,
+  Compass,
+  Clock,
   Calendar,
-  CheckCheck,
+  Star,
 } from 'lucide-react';
 
 import { cn } from '@/lib/utils/cn';
 import { getReadNotificationIds, markNotificationAsRead } from '@/lib/auth';
 import type { Notification, NotificationType } from '@/types/user';
 
-// ─── Mock Notifications ─────────────────────────────────
+// ─── Mock Notifications ──────────────────────
 
 const MOCK_NOTIFICATIONS: Notification[] = [
   {
     id: 'notif-001',
-    type: 'booking_confirmed',
-    title: 'Booking Confirmed',
-    message: 'Your Everest Base Camp Trek has been confirmed. Departure: Oct 5, 2026.',
-    created_at: '2026-06-20T10:00:00Z',
+    type: 'guide_assigned',
+    title: 'Guide assigned to your trek',
+    message: 'Bishal Tamang has been assigned as your guide for Everest Base Camp Trek.',
+    created_at: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), // 2 hours ago
     read: false,
     link: '/my-treks/bk-1001',
   },
   {
     id: 'notif-002',
-    type: 'guide_assigned',
-    title: 'Guide Assigned',
-    message: 'Suresh Tamang has been assigned as your guide for Everest Base Camp Trek.',
-    created_at: '2026-06-18T14:30:00Z',
+    type: 'booking_confirmed',
+    title: 'Payment confirmed',
+    message: 'Your payment of $2,450 for Everest Base Camp Trek was received.',
+    created_at: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(), // 1 day ago
     read: false,
     link: '/my-treks/bk-1001',
   },
   {
     id: 'notif-003',
     type: 'payment_reminder',
-    title: 'Payment Reminder',
-    message: 'Final payment of $1,200 due in 30 days for your Annapurna Circuit booking.',
-    created_at: '2026-06-15T09:00:00Z',
-    read: false,
+    title: 'Payment reminder',
+    message: 'Complete payment for Langtang Valley Trek within 48 hours to secure your slot.',
+    created_at: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(), // 3 days
+    read: true,
     link: '/my-treks/bk-1002',
   },
   {
     id: 'notif-004',
     type: 'trek_reminder',
-    title: 'Trek Starting Soon',
-    message: 'Your Langtang Valley Trek begins in 7 days. Check your packing list.',
-    created_at: '2026-06-08T08:00:00Z',
+    title: 'Trek starts in 48 hours',
+    message: 'Your Annapurna Base Camp Trek departs soon — review your packing list.',
+    created_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(), // 5 days
     read: true,
     link: '/my-treks/bk-1003',
   },
   {
     id: 'notif-005',
-    type: 'booking_confirmed',
-    title: 'Booking Confirmed',
-    message: 'Your Mustang Heritage trek booking has been confirmed.',
-    created_at: '2026-05-30T11:15:00Z',
+    type: 'trek_reminder',
+    title: 'How was your trek?',
+    message: 'Leave a review for Manaslu Circuit Trek with Summit Trails Nepal.',
+    created_at: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(), // 2 weeks
     read: true,
   },
 ];
 
-// ─── Icon Per Type ──────────────────────────────────────
+// ─── Icon Config Per Type ──────────────────
 
-const TYPE_ICONS: Record<NotificationType, React.ReactNode> = {
-  booking_confirmed: <CheckCircle2 className="h-5 w-5 text-green-600" />,
-  guide_assigned: <UserPlus className="h-5 w-5 text-blue-600" />,
-  payment_reminder: <CreditCard className="h-5 w-5 text-yellow-600" />,
-  trek_reminder: <Calendar className="h-5 w-5 text-primary-600" />,
+const TYPE_CONFIG: Record<NotificationType, { icon: React.ElementType; bg: string; color: string }> = {
+  guide_assigned: {
+    icon: Compass,
+    bg: 'bg-orange-100',
+    color: 'text-orange-600',
+  },
+  booking_confirmed: {
+    icon: CheckCircle2,
+    bg: 'bg-green-100',
+    color: 'text-green-600',
+  },
+  payment_reminder: {
+    icon: Clock,
+    bg: 'bg-yellow-100',
+    color: 'text-yellow-600',
+  },
+  trek_reminder: {
+    icon: Calendar,
+    bg: 'bg-blue-100',
+    color: 'text-blue-600',
+  },
 };
 
-const TYPE_BG: Record<NotificationType, string> = {
-  booking_confirmed: 'bg-green-50',
-  guide_assigned: 'bg-blue-50',
-  payment_reminder: 'bg-yellow-50',
-  trek_reminder: 'bg-primary-50',
+// Special icon for review type (mapped via title)
+const REVIEW_CONFIG = {
+  icon: Star,
+  bg: 'bg-purple-100',
+  color: 'text-purple-600',
 };
 
-// ─── Format Time ────────────────────────────────────────
+// ─── Format Time Ago ──────────────────────
 
 function formatTimeAgo(dateStr: string): string {
   const date = new Date(dateStr);
@@ -90,22 +109,27 @@ function formatTimeAgo(dateStr: string): string {
   const diffMins = Math.floor(diffMs / (1000 * 60));
   const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
   const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+  const diffWeeks = Math.floor(diffDays / 7);
 
-  if (diffMins < 60) return `${diffMins}m ago`;
-  if (diffHours < 24) return `${diffHours}h ago`;
-  if (diffDays < 30) return `${diffDays}d ago`;
+  if (diffMins < 1) return 'Just now';
+  if (diffMins < 60) return `${diffMins} minute${diffMins > 1 ? 's' : ''} ago`;
+  if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+  if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+  if (diffWeeks < 4) return `${diffWeeks} week${diffWeeks > 1 ? 's' : ''} ago`;
   return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 }
 
-// ─── Component ──────────────────────────────────────────
+// ─── Component ────────────────────────────
 
 export default function NotificationsPage() {
-  // Track which notifications are read (combines mock + localStorage)
-  const [readIds, setReadIds] = useState<string[]>(() =>
-    typeof window !== 'undefined' ? getReadNotificationIds() : []
-  );
+  const [readIds, setReadIds] = useState<string[]>([]);
+  const [mounted, setMounted] = useState(false);
 
-  // Merge mock data with localStorage read state
+  useEffect(() => {
+  setMounted(true);
+  setReadIds(getReadNotificationIds());
+}, []);
+
   const notifications = useMemo(() => {
     return MOCK_NOTIFICATIONS.map((n) => ({
       ...n,
@@ -115,126 +139,153 @@ export default function NotificationsPage() {
 
   const unreadCount = notifications.filter((n) => !n.read).length;
 
-  // ── Mark all as read ──
   function handleMarkAllRead() {
     const allIds = notifications.filter((n) => !n.read).map((n) => n.id);
     allIds.forEach((id) => markNotificationAsRead(id));
     setReadIds(getReadNotificationIds());
   }
 
-  // ── Mark one as read on click ──
   function handleClickNotification(id: string) {
     markNotificationAsRead(id);
     setReadIds(getReadNotificationIds());
   }
 
   return (
-    <div className="space-y-6">
+    <div className="mx-auto max-w-3xl space-y-6">
 
       {/* ── Header ── */}
-      <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="flex items-center gap-2 text-2xl font-bold text-neutral-900">
-            <Bell className="h-6 w-6" />
-            Notifications
-            {unreadCount > 0 && (
-              <span className="rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-semibold text-red-700">
-                {unreadCount} new
-              </span>
-            )}
-          </h1>
-          <p className="mt-1 text-sm text-neutral-600">
-            Updates about your treks, bookings, and payments
+          <h1 className="text-2xl font-bold text-neutral-900">Notifications</h1>
+          <p className="mt-1 text-sm text-neutral-500">
+            Booking updates, guide assignments and trek reminders
           </p>
         </div>
 
-        {unreadCount > 0 && (
+        {mounted && unreadCount > 0 && (
           <button
             onClick={handleMarkAllRead}
-            className="flex items-center gap-2 rounded-lg border border-neutral-300 px-3 py-1.5 text-sm font-medium text-neutral-700 transition hover:bg-neutral-50"
+            className="rounded-lg border border-neutral-300 bg-white px-3 py-1.5 text-xs font-semibold text-neutral-700 transition hover:bg-neutral-50"
           >
-            <CheckCheck className="h-4 w-4" />
             Mark all as read
           </button>
         )}
       </div>
 
-      {/* ── Notifications List ── */}
-      <div className="space-y-2">
+      {/* ── Notifications Card ── */}
+      <div className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm">
 
-        {notifications.length === 0 ? (
-          <div className="rounded-xl border-2 border-dashed border-neutral-200 bg-white p-12 text-center">
-            <Bell className="mx-auto h-8 w-8 text-neutral-400" />
-            <p className="mt-4 text-sm font-medium text-neutral-700">
+        {!mounted ? (
+          /* Loading skeleton */
+          <div className="divide-y divide-neutral-100">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="flex gap-3 p-4">
+                <div className="h-10 w-10 rounded-lg bg-neutral-100" />
+                <div className="flex-1 space-y-2">
+                  <div className="h-4 w-1/3 rounded bg-neutral-100" />
+                  <div className="h-3 w-full rounded bg-neutral-100" />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : notifications.length === 0 ? (
+          <div className="p-12 text-center">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-neutral-100">
+              <Bell className="h-7 w-7 text-neutral-400" />
+            </div>
+            <p className="mt-4 text-base font-semibold text-neutral-700">
               No notifications yet
+            </p>
+            <p className="mt-1 text-sm text-neutral-500">
+              You&apos;ll see updates about your treks here
             </p>
           </div>
         ) : (
-          notifications.map((notif) => {
-            const isUnread = !notif.read;
-            const content = (
-              <div
+          <div className="divide-y divide-neutral-100">
+            {notifications.map((notif) => (
+              <NotificationItem
+                key={notif.id}
+                notification={notif}
                 onClick={() => handleClickNotification(notif.id)}
-                className={cn(
-                  'flex gap-3 rounded-xl border p-4 transition cursor-pointer',
-                  isUnread
-                    ? 'border-primary-200 bg-primary-50/30 hover:bg-primary-50'
-                    : 'border-neutral-200 bg-white hover:bg-neutral-50'
-                )}
-              >
-
-                {/* Icon */}
-                <div
-                  className={cn(
-                    'flex h-10 w-10 shrink-0 items-center justify-center rounded-full',
-                    TYPE_BG[notif.type]
-                  )}
-                >
-                  {TYPE_ICONS[notif.type]}
-                </div>
-
-                {/* Content */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-start justify-between gap-2">
-                    <h3 className={cn(
-                      'text-sm',
-                      isUnread ? 'font-semibold text-neutral-900' : 'font-medium text-neutral-700'
-                    )}>
-                      {notif.title}
-                    </h3>
-                    <span className="shrink-0 text-xs text-neutral-500">
-                      {formatTimeAgo(notif.created_at)}
-                    </span>
-                  </div>
-
-                  <p className="mt-1 text-sm text-neutral-600">
-                    {notif.message}
-                  </p>
-
-                  {/* Unread dot */}
-                  {isUnread && (
-                    <div className="mt-2 flex items-center gap-1.5">
-                      <span className="h-2 w-2 rounded-full bg-primary-600" />
-                      <span className="text-xs font-medium text-primary-600">New</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-            );
-
-            // Wrap in Link if notification has a link
-            return notif.link ? (
-              <Link key={notif.id} href={notif.link} className="block">
-                {content}
-              </Link>
-            ) : (
-              <div key={notif.id}>{content}</div>
-            );
-          })
+              />
+            ))}
+          </div>
         )}
 
       </div>
 
     </div>
+  );
+}
+
+// ─── Notification Item ────────────────────
+
+interface NotificationItemProps {
+  notification: Notification;
+  onClick: () => void;
+}
+
+function NotificationItem({ notification, onClick }: NotificationItemProps) {
+  const isUnread = !notification.read;
+
+  // Get icon config (special case for review)
+  const isReview = notification.title.toLowerCase().includes('review') ||
+                    notification.title.toLowerCase().includes('how was');
+  const config = isReview ? REVIEW_CONFIG : TYPE_CONFIG[notification.type];
+  const Icon = config.icon;
+
+  const content = (
+    <div
+      onClick={onClick}
+      className={cn(
+        'flex gap-3 px-5 py-4 transition-colors cursor-pointer',
+        isUnread ? 'bg-blue-50/60 hover:bg-blue-50' : 'bg-white hover:bg-neutral-50'
+      )}
+    >
+
+      {/* Icon Badge */}
+      <div className={cn(
+        'flex h-10 w-10 shrink-0 items-center justify-center rounded-lg',
+        config.bg
+      )}>
+        <Icon className={cn('h-5 w-5', config.color)} />
+      </div>
+
+      {/* Content */}
+      <div className="flex-1 min-w-0">
+        <div className="flex items-start justify-between gap-3">
+          <h3 className={cn(
+            'text-sm leading-tight',
+            isUnread ? 'font-bold text-neutral-900' : 'font-semibold text-neutral-800'
+          )}>
+            {notification.title}
+          </h3>
+
+          {/* Unread dot */}
+          {isUnread && (
+            <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-primary-600" />
+          )}
+        </div>
+
+        <p className={cn(
+          'mt-1 text-sm leading-relaxed',
+          isUnread ? 'text-neutral-700' : 'text-neutral-500'
+        )}>
+          {notification.message}
+        </p>
+
+        <p className="mt-1.5 text-xs text-neutral-400">
+          {formatTimeAgo(notification.created_at)}
+        </p>
+      </div>
+    </div>
+  );
+
+  return notification.link ? (
+    <Link href={notification.link} className="block">
+      {content}
+    </Link>
+  ) : (
+    <div>{content}</div>
   );
 }

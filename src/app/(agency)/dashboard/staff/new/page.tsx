@@ -1,24 +1,32 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { ChevronRight } from "lucide-react";
+import { useState } from "react";
+import toast from "react-hot-toast";
 
 import StaffForm from "@/components/agency/staff/StaffForm";
 import { useStaff } from "@/hooks/useStaff";
 
 export default function NewStaffPage() {
   const { addStaff } = useStaff();
-  const router = useRouter();
+  const [formKey, setFormKey] = useState(0);
 
   const handleSave = (data: Parameters<typeof addStaff>[0]) => {
-    addStaff(data);
-    router.push("/dashboard/staff");
+    try {
+      addStaff(data);
+      toast.success(
+        "Staff member created successfully. You can add another staff member now.",
+      );
+      setFormKey((current) => current + 1);
+    } catch {
+      toast.error("Could not create the staff member. Please try again.");
+    }
   };
 
   return (
-    <div className="mx-auto w-full max-w-6xl py-6">
-      <div className="mb-6">
+    <div className="mx-auto w-full max-w-6xl py-2 sm:py-4">
+      <div className="mb-7 border-b border-neutral-200 pb-6">
         <div className="flex items-center gap-1 text-xs text-neutral-500">
           <Link href="/dashboard">Dashboard</Link>
           <ChevronRight size={15} />
@@ -31,7 +39,7 @@ export default function NewStaffPage() {
           Create a staff account and assign its role and access.
         </p>
       </div>
-      <StaffForm onSave={handleSave} />
+      <StaffForm key={formKey} onSave={handleSave} />
     </div>
   );
 }

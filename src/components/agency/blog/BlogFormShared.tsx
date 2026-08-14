@@ -1,9 +1,10 @@
-
 "use client";
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
+
+import { useTheme } from "@/context/theme";
 
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import VisibilityIcon from "@mui/icons-material/Visibility";
@@ -22,6 +23,7 @@ interface BlogPost {
   publishDate?: string;
   tag?: string;
   photoOption?: "local" | "gallery";
+  photoUrl?: string;
   date: string;
   views: number;
 }
@@ -37,7 +39,6 @@ interface FormErrors {
   category: string;
   publishDate: string;
   photo: string;
-
 }
 
 export function BlogFormShared({
@@ -48,6 +49,7 @@ export function BlogFormShared({
   /* --------------------------------------------------
      Form State
   -------------------------------------------------- */
+  const { isDark } = useTheme();
 
   const [title, setTitle] = useState("");
   const [subtitle, setSubtitle] = useState("");
@@ -60,6 +62,13 @@ export function BlogFormShared({
   );
 
   const [tag, setTag] = useState("");
+
+  const [selectedGalleryImage, setSelectedGalleryImage] = useState<{
+    id: string;
+    url: string;
+    title?: string;
+    owner?: string;
+  } | null>(null);
 
   const [photoOption, setPhotoOption] = useState<
     "local" | "gallery"
@@ -76,17 +85,20 @@ export function BlogFormShared({
     category: "",
     publishDate: "",
     photo: "",
-
   });
 
-
+  /* --------------------------------------------------
+     Load Existing Blog
+  -------------------------------------------------- */
 
   useEffect(() => {
     if (!postId) return;
 
     const loadBlog = async () => {
       try {
-        const data = localStorage.getItem("funtush_blog_posts");
+        const data = localStorage.getItem(
+          "funtush_blog_posts"
+        );
 
         if (!data) {
           toast.error("Blog data could not be found.");
@@ -116,11 +128,22 @@ export function BlogFormShared({
         setStatus(target.status || "Draft");
 
         setPublishDate(
-          target.publishDate || "Jul 19, 2026 10:30 AM"
+          target.publishDate ||
+            "Jul 19, 2026 10:30 AM"
         );
 
         setTag(target.tag || "");
-        setPhotoOption(target.photoOption || "local");
+        setPhotoOption(
+          target.photoOption || "local"
+        );
+        if (target.photoUrl) {
+          setSelectedGalleryImage({
+            id: target.photoUrl,
+            url: target.photoUrl,
+            title: "",
+            owner: "",
+          });
+        }
       } catch (error) {
         console.error("Failed to load blog:", error);
 
@@ -133,7 +156,9 @@ export function BlogFormShared({
     loadBlog();
   }, [postId]);
 
-
+  /* --------------------------------------------------
+     Clear Error
+  -------------------------------------------------- */
 
   const clearError = (
     field: keyof FormErrors
@@ -160,21 +185,15 @@ export function BlogFormShared({
       photo: "",
     };
 
-    /* Title */
-
     if (!title.trim()) {
       newErrors.title =
         "Blog title is required.";
     }
 
-    /* Subtitle */
-
     if (!subtitle.trim()) {
       newErrors.subtitle =
         "Subtitle is required.";
     }
-
-    /* Content */
 
     const plainContent = htmlContent
       .replace(/<[^>]*>/g, "")
@@ -186,8 +205,6 @@ export function BlogFormShared({
         "Blog content is required.";
     }
 
-    /* Category */
-
     if (
       targetStatus === "Published" &&
       !category.trim()
@@ -195,8 +212,6 @@ export function BlogFormShared({
       newErrors.category =
         "Category is required before publishing.";
     }
-
-    /* Scheduled Date */
 
     if (
       targetStatus === "Scheduled" &&
@@ -242,8 +257,6 @@ export function BlogFormShared({
         );
 
       let recordsList: BlogPost[] = [];
-
-      /* Read existing records */
 
       if (currentRecords) {
         try {
@@ -300,31 +313,22 @@ export function BlogFormShared({
             String(item.id) ===
               String(postId)
               ? {
-                ...item,
-
-                title: title.trim(),
-
-                subtitle:
-                  subtitle.trim(),
-
-                htmlContent,
-
-                category,
-
-                status:
-                  finalStatus as
-                  | "Draft"
-                  | "Scheduled"
-                  | "Published",
-
-                publishDate,
-
-                tag,
-
-                photoOption,
-
-                date: dateValue,
-              }
+                  ...item,
+                  title: title.trim(),
+                  subtitle: subtitle.trim(),
+                  htmlContent,
+                  category,
+                  status:
+                    finalStatus as
+                      | "Draft"
+                      | "Scheduled"
+                      | "Published",
+                  publishDate,
+                  tag,
+                  photoOption,
+                  photoUrl: photoOption === 'gallery' ? selectedGalleryImage?.url || '' : item.photoUrl || '',
+                  date: dateValue,
+                }
               : item
         );
 
@@ -333,9 +337,7 @@ export function BlogFormShared({
           JSON.stringify(recordsList)
         );
 
-        if (
-          finalStatus === "Published"
-        ) {
+        if (finalStatus === "Published") {
           toast.success(
             "Blog published successfully!"
           );
@@ -359,30 +361,20 @@ export function BlogFormShared({
       else {
         const newPost: BlogPost = {
           id: `post-${Date.now()}`,
-
           title: title.trim(),
-
-          subtitle:
-            subtitle.trim(),
-
+          subtitle: subtitle.trim(),
           htmlContent,
-
           category,
-
           status:
             finalStatus as
-            | "Draft"
-            | "Scheduled"
-            | "Published",
-
+              | "Draft"
+              | "Scheduled"
+              | "Published",
           publishDate,
-
           tag,
-
           photoOption,
-
+          photoUrl: photoOption === 'gallery' ? selectedGalleryImage?.url || '' : '',
           date: dateValue,
-
           views: 0,
         };
 
@@ -396,9 +388,7 @@ export function BlogFormShared({
           JSON.stringify(recordsList)
         );
 
-        if (
-          finalStatus === "Published"
-        ) {
+        if (finalStatus === "Published") {
           toast.success(
             "Blog published successfully!"
           );
@@ -442,21 +432,15 @@ export function BlogFormShared({
       photo: "",
     };
 
-    /* Title */
-
     if (!title.trim()) {
       newErrors.title =
         "Blog title is required.";
     }
 
-    /* Subtitle */
-
     if (!subtitle.trim()) {
       newErrors.subtitle =
         "Subtitle is required.";
     }
-
-    /* Content */
 
     const plainContent = htmlContent
       .replace(/<[^>]*>/g, "")
@@ -522,92 +506,170 @@ export function BlogFormShared({
 
   return (
     <div className="w-full space-y-6">
-
       {/* Header & Actions */}
 
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-        <div className="min-w-0">
-          {/* Breadcrumbs */}
+     <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+  <div className="min-w-0">
+    {/* Breadcrumbs */}
 
-          <div className="flex items-center gap-1 text-xs sm:text-sm overflow-hidden">
-            <span className="text-neutral-500 dark:text-[#596583] whitespace-nowrap">
-              Dashboard
-            </span>
+    <div className="flex items-center gap-1 overflow-hidden text-xs sm:text-sm">
+      <span
+        className={
+          isDark
+            ? "whitespace-nowrap text-neutral-400"
+            : "whitespace-nowrap text-neutral-500"
+        }
+      >
+        Dashboard
+      </span>
 
-            <ChevronRightIcon
-              className="text-neutral-400 shrink-0"
-              style={{ fontSize: 18 }}
-            />
+      <ChevronRightIcon
+        className={
+          isDark
+            ? "shrink-0 text-neutral-500"
+            : "shrink-0 text-neutral-400"
+        }
+        sx={{ fontSize: 18 }}
+      />
 
-            <span className="text-neutral-500 dark:text-[#596583] whitespace-nowrap">
-              All Blogs
-            </span>
+      <span
+        className={
+          isDark
+            ? "whitespace-nowrap text-neutral-400"
+            : "whitespace-nowrap text-neutral-500"
+        }
+      >
+        All Blogs
+      </span>
 
-            <ChevronRightIcon
-              className="text-neutral-400 shrink-0"
-              style={{ fontSize: 18 }}
-            />
+      <ChevronRightIcon
+        className={
+          isDark
+            ? "shrink-0 text-neutral-500"
+            : "shrink-0 text-neutral-400"
+        }
+        sx={{ fontSize: 18 }}
+      />
 
-            <span className="text-neutral-900 dark:text-[#596583] font-medium whitespace-nowrap">
-              {postId ? "Edit Blog" : "Add Blogs"}
-            </span>
-          </div>
+      <span
+        className={
+          isDark
+            ? "whitespace-nowrap font-medium text-neutral-100"
+            : "whitespace-nowrap font-medium text-neutral-900"
+        }
+      >
+        {postId ? "Edit Blog" : "Add Blog"}
+      </span>
+    </div>
 
-          <h1 className="text-xl sm:text-2xl font-bold text-neutral-900 dark:text-[#596583] tracking-tight mt-2">
-            All Blogs
-          </h1>
+    {/* Title */}
 
-          <p className="text-xs sm:text-sm text-neutral-500 dark:text-[#596583]">
-            {postId
-              ? "Edit and update your blog post"
-              : "Create and publish a new blog post"}
-          </p>
-        </div>
+    <h1
+      className={
+        isDark
+          ? "mt-2 text-xl font-bold tracking-tight text-neutral-100 sm:text-2xl"
+          : "mt-2 text-xl font-bold tracking-tight text-neutral-900 sm:text-2xl"
+      }
+    >
+      All Blogs
+    </h1>
 
-        {/* Actions */}
+    <p
+      className={
+        isDark
+          ? "text-xs text-neutral-400 sm:text-sm"
+          : "text-xs text-neutral-500 sm:text-sm"
+      }
+    >
+      {postId
+        ? "Edit and update your blog post"
+        : "Create and publish a new blog post"}
+    </p>
+  </div>
 
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 w-full lg:w-auto">
-          {/* Save Draft */}
+  {/* Actions */}
 
-          <button
-            type="button"
-            onClick={() =>
-              handleSave(undefined, "Draft")
-            }
-            className="w-full sm:w-auto px-4 py-2.5 bg-[#111B3A] hover:bg-[#1a264a] text-white text-xs font-semibold border border-[#1E293B] transition-colors shadow-sm rounded-md whitespace-nowrap"
-          >
-            Save as Draft
-          </button>
+  <div className="flex w-full flex-col items-stretch gap-2 sm:flex-row sm:items-center sm:gap-3 lg:w-auto">
+    {/* Save Draft */}
 
-          {/* Preview */}
+    <button
+      type="button"
+      onClick={() => handleSave(undefined, "Draft")}
+      className={`
+        w-full cursor-pointer
+        whitespace-nowrap rounded-lg
+        border px-4 py-2.5
+        text-xs font-semibold
+        shadow-sm transition-colors
+        sm:w-auto
 
-          <button
-            type="button"
-            onClick={handlePreview}
-            className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2.5 bg-[#111B3A] hover:bg-[#1a264a] text-white text-xs font-semibold border border-[#1E293B] transition-colors shadow-sm rounded-md whitespace-nowrap"
-          >
-            <VisibilityIcon style={{ fontSize: 16 }} />
-            Preview
-          </button>
+        ${
+          isDark
+            ? "border-neutral-700 bg-neutral-800 text-neutral-100 hover:bg-neutral-700"
+            : "border-neutral-300 bg-white text-neutral-700 hover:bg-neutral-50"
+        }
+      `}
+    >
+      Save as Draft
+    </button>
 
-          {/* Publish */}
+    {/* Preview */}
 
-          <button
-            type="button"
-            onClick={() =>
-              handleSave(undefined, "Published")
-            }
-            className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold shadow-lg shadow-blue-600/20 transition-colors rounded-md whitespace-nowrap"
-          >
-            <AddIcon style={{ fontSize: 16 }} />
-            Publish
-          </button>
-        </div>
-      </div>
+    <button
+      type="button"
+      onClick={handlePreview}
+      className={`
+        flex w-full cursor-pointer
+        items-center justify-center
+        gap-2 whitespace-nowrap
+        rounded-lg border px-4 py-2.5
+        text-xs font-semibold
+        shadow-sm transition-colors
+        sm:w-auto
+
+        ${
+          isDark
+            ? "border-neutral-700 bg-neutral-800 text-neutral-100 hover:bg-neutral-700"
+            : "border-neutral-300 bg-white text-neutral-700 hover:bg-neutral-50"
+        }
+      `}
+    >
+      <VisibilityIcon sx={{ fontSize: 16 }} />
+      Preview
+    </button>
+
+    {/* Publish */}
+
+    <button
+      type="button"
+      onClick={() =>
+        handleSave(undefined, "Published")
+      }
+      className="
+        flex w-full cursor-pointer
+        items-center justify-center
+        gap-2 whitespace-nowrap
+        rounded-lg px-5 py-2.5
+        text-xs font-semibold
+        shadow-sm transition-colors
+        sm:w-auto
+        bg-primary-500
+        text-white
+        hover:bg-primary-600
+        focus:outline-none
+        focus:ring-2
+        focus:ring-primary-500/30
+      "
+    >
+      <AddIcon sx={{ fontSize: 16 }} />
+      Publish
+    </button>
+  </div>
+</div>
 
       {/* Main Content */}
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 w-full items-start">
+      <div className="grid w-full grid-cols-1 items-start gap-4 lg:grid-cols-3">
         {/* Editor */}
 
         <BlogEditorSection
@@ -635,7 +697,8 @@ export function BlogFormShared({
 
         {/* Publish Settings */}
 
-        <BlogPublishSettings
+        <div className="lg:sticky lg:top-24">
+          <BlogPublishSettings
           category={category}
           setCategory={(value) => {
             setCategory(value);
@@ -660,7 +723,10 @@ export function BlogFormShared({
           setPhotoOption={setPhotoOption}
           errors={errors}
           setErrors={setErrors}
-        />
+          onSelectGalleryImage={setSelectedGalleryImage}
+          selectedGalleryImage={selectedGalleryImage}
+          />
+        </div>
       </div>
     </div>
   );

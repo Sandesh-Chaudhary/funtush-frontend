@@ -2,7 +2,15 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { CheckCircle2, Clock3, Download, FileText, MapPin, Trophy } from "lucide-react";
+import {
+  CheckCircle2,
+  Clock3,
+  Download,
+  FileText,
+  MapPin,
+  Trophy,
+} from "lucide-react";
+import { useRouter } from "next/navigation";
 
 import { Pagination } from "@/components/ui/pagination";
 import { AnalyticsSummaryCard } from "@/components/shared/AnalyticsSummaryCard";
@@ -80,7 +88,8 @@ function BookingStatusBadge({ status }: { status: string }) {
   return (
     <span
       className={`inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] ${
-        variants[normalizedStatus] ?? "border border-neutral-200 bg-neutral-100 text-neutral-700"
+        variants[normalizedStatus] ??
+        "border border-neutral-200 bg-neutral-100 text-neutral-700"
       }`}
     >
       {status}
@@ -89,20 +98,27 @@ function BookingStatusBadge({ status }: { status: string }) {
 }
 
 export default function BookingsPage() {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<Tab>("all");
   const [search, setSearch] = useState("");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
 
-  const [bookings, setBookings] = useState<Booking[]>(() => {
+  // Initialize with the static dataset so server and client render match.
+  // Read from localStorage only after mount to avoid hydration mismatches.
+  const [bookings, setBookings] = useState<Booking[]>(bookingsData as Booking[]);
+
+  useEffect(() => {
     try {
-      const stored = typeof window !== "undefined" ? localStorage.getItem("bookings") : null;
-      return stored ? (JSON.parse(stored) as Booking[]) : (bookingsData as Booking[]);
+      const stored = localStorage.getItem("bookings");
+      if (stored) {
+        setBookings(JSON.parse(stored) as Booking[]);
+      }
     } catch {
-      return bookingsData as Booking[];
+      /* ignore and keep default bookingsData */
     }
-  });
+  }, []);
 
   const inquiryCount = bookings.filter(
     (booking) => booking.status.toLowerCase() === "inquiry",
@@ -152,7 +168,10 @@ export default function BookingsPage() {
   }, [activeTab, bookings, fromDate, search, toDate]);
 
   const bookingsPerPage = 8;
-  const totalPages = Math.max(1, Math.ceil(filteredBookings.length / bookingsPerPage));
+  const totalPages = Math.max(
+    1,
+    Math.ceil(filteredBookings.length / bookingsPerPage),
+  );
 
   // Reset page when filters change by updating handlers that change the filters (below)
 
@@ -170,30 +189,59 @@ export default function BookingsPage() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="space-y-2">
           <div className="flex flex-wrap items-center gap-2 text-sm text-neutral-500">
-            <Link href="/dashboard" className="transition hover:text-neutral-900">
+            <Link
+              href="/dashboard"
+              className="transition hover:text-neutral-900"
+            >
               Dashboard
             </Link>
             <span className="text-neutral-300">/</span>
             <span className="font-semibold text-neutral-900">All Bookings</span>
           </div>
-          <h1 className="text-3xl font-semibold text-neutral-900">Booking Approval</h1>
+          <h1 className="text-3xl font-semibold text-neutral-900">
+            Booking Approval
+          </h1>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <button className="inline-flex items-center gap-2 rounded-2xl border border-primary-200 bg-white px-4 py-2 text-sm font-semibold text-primary-900 transition hover:bg-primary-50">
             <FileText className="h-4 w-4" />
             Export CSV
           </button>
-          <button className="rounded-2xl bg-primary-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary-800">
+          <button
+            type="button"
+            onClick={() => router.push("/dashboard/bookings/new")}
+            className="rounded-2xl bg-primary-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary-800"
+          >
             + Create
           </button>
         </div>
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <AnalyticsSummaryCard label="Pending" value={inquiryCount} tone="warning" icon={Clock3} />
-        <AnalyticsSummaryCard label="Confirmed" value={confirmedCount} tone="success" icon={CheckCircle2} />
-        <AnalyticsSummaryCard label="Active Treks" value={activeCount} tone="primary" icon={MapPin} />
-        <AnalyticsSummaryCard label="Completed" value={completedCount} tone="success" icon={Trophy} />
+        <AnalyticsSummaryCard
+          label="Pending"
+          value={inquiryCount}
+          tone="warning"
+          icon={Clock3}
+        />
+        <AnalyticsSummaryCard
+          label="Confirmed"
+          value={confirmedCount}
+          tone="success"
+          icon={CheckCircle2}
+        />
+        <AnalyticsSummaryCard
+          label="Active Treks"
+          value={activeCount}
+          tone="primary"
+          icon={MapPin}
+        />
+        <AnalyticsSummaryCard
+          label="Completed"
+          value={completedCount}
+          tone="success"
+          icon={Trophy}
+        />
       </div>
 
       <div className="mt-5 overflow-x-auto border-b border-neutral-200">
@@ -203,20 +251,23 @@ export default function BookingsPage() {
               tab === "inquiry"
                 ? inquiryCount
                 : tab === "confirmed"
-                ? confirmedCount
-                : tab === "active"
-                ? activeCount
-                : tab === "completed"
-                ? completedCount
-                : tab === "cancelled"
-                ? cancelledCount
-                : paymentCount;
+                  ? confirmedCount
+                  : tab === "active"
+                    ? activeCount
+                    : tab === "completed"
+                      ? completedCount
+                      : tab === "cancelled"
+                        ? cancelledCount
+                        : paymentCount;
 
             return (
               <button
                 key={tab}
                 type="button"
-                onClick={() => { setActiveTab(tab); setCurrentPage(1); }}
+                onClick={() => {
+                  setActiveTab(tab);
+                  setCurrentPage(1);
+                }}
                 className={`inline-flex items-center gap-2 border-b-2 px-1 py-3 text-sm font-semibold capitalize transition ${
                   activeTab === tab
                     ? "border-primary-900 text-primary-900"
@@ -239,14 +290,20 @@ export default function BookingsPage() {
             type="text"
             placeholder="Search bookings..."
             value={search}
-            onChange={(e) => { setSearch(e.target.value); setCurrentPage(1); }}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setCurrentPage(1);
+            }}
             className="w-full rounded-2xl border border-neutral-200 bg-white px-4 py-3 text-sm text-neutral-900 outline-none transition focus:border-primary-400 focus:ring-2 focus:ring-primary-100"
           />
         </label>
 
         <select
           value={activeTab}
-          onChange={(e) => { setActiveTab(e.target.value as Tab); setCurrentPage(1); }}
+          onChange={(e) => {
+            setActiveTab(e.target.value as Tab);
+            setCurrentPage(1);
+          }}
           className="w-full rounded-2xl border border-neutral-200 bg-white px-4 py-3 text-sm text-neutral-900 outline-none transition focus:border-primary-400 focus:ring-2 focus:ring-primary-100"
         >
           {statusOptions.map((option) => (
@@ -259,14 +316,20 @@ export default function BookingsPage() {
         <input
           type="date"
           value={fromDate}
-          onChange={(e) => { setFromDate(e.target.value); setCurrentPage(1); }}
+          onChange={(e) => {
+            setFromDate(e.target.value);
+            setCurrentPage(1);
+          }}
           className="w-full rounded-2xl border border-neutral-200 bg-white px-4 py-3 text-sm text-neutral-900 outline-none transition focus:border-primary-400 focus:ring-2 focus:ring-primary-100"
         />
 
         <input
           type="date"
           value={toDate}
-          onChange={(e) => { setToDate(e.target.value); setCurrentPage(1); }}
+          onChange={(e) => {
+            setToDate(e.target.value);
+            setCurrentPage(1);
+          }}
           className="w-full rounded-2xl border border-neutral-200 bg-white px-4 py-3 text-sm text-neutral-900 outline-none transition focus:border-primary-400 focus:ring-2 focus:ring-primary-100"
         />
 
@@ -319,7 +382,10 @@ export default function BookingsPage() {
                   const rowKey = `${booking.id}-${index}`;
 
                   return (
-                    <tr key={rowKey} className="border-t border-neutral-200 hover:bg-neutral-50">
+                    <tr
+                      key={rowKey}
+                      className="border-t border-neutral-200 hover:bg-neutral-50"
+                    >
                       <td className="px-4 py-3 font-medium text-neutral-900">
                         {trekker?.name ?? "Unknown"}
                       </td>
@@ -343,7 +409,9 @@ export default function BookingsPage() {
                       </td>
 
                       <td className="px-4 py-3 text-neutral-700">
-                        {booking.status.toLowerCase() === "inquiry" && !guide ? "Unassigned" : guide?.name ?? "Not Assigned"}
+                        {booking.status.toLowerCase() === "inquiry" && !guide
+                          ? "Unassigned"
+                          : (guide?.name ?? "Not Assigned")}
                       </td>
 
                       <td className="px-4 py-3 text-center">

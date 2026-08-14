@@ -1,10 +1,22 @@
 "use client";
 
-import { useState} from "react";
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { useTheme } from "@/context/theme";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
+import ImageIcon from "@mui/icons-material/Image";
+import Image from "next/image";
+
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import { Modal } from "@/components/ui/modal";
+
+interface GalleryImage {
+  id: string;
+  url: string;
+  title?: string;
+  owner?: string;
+}
 
 interface BlogPublishSettingsProps {
   category: string;
@@ -38,6 +50,8 @@ interface BlogPublishSettingsProps {
       photo: string;
     }>
   >;
+  onSelectGalleryImage?: (img: GalleryImage | null) => void;
+  selectedGalleryImage?: GalleryImage | null;
 }
 
 export function BlogPublishSettings({
@@ -53,31 +67,74 @@ export function BlogPublishSettings({
   setPhotoOption,
   errors,
   setErrors,
+  onSelectGalleryImage,
+  selectedGalleryImage: selectedGalleryImageProp,
 }: BlogPublishSettingsProps) {
   const { isDark } = useTheme();
 
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  
-  // Initialize tagsList from the incoming tag prop if it already contains values
+  const [selectedFile, setSelectedFile] =
+    useState<File | null>(null);
+
+  const [selectedGalleryImage, setSelectedGalleryImage] =
+    useState<GalleryImage | null>(null);
+
   const [tagsList, setTagsList] = useState<string[]>(
-    tag ? tag.split(",").map((t) => t.trim()).filter(Boolean) : []
+    tag
+      ? tag
+        .split(",")
+        .map((t) => t.trim())
+        .filter(Boolean)
+      : []
   );
+
   const [tagInput, setTagInput] = useState("");
 
+  const [galleryImages, setGalleryImages] = useState<GalleryImage[]>([]);
+
+  const [showGalleryModal, setShowGalleryModal] = useState(false);
+  const [gallerySearch, setGallerySearch] = useState("");
+
+  useEffect(() => {
+    let mounted = true;
+
+    fetch("/api/gallery")
+      .then((res) => res.json())
+      .then((data) => {
+        if (!mounted) return;
+
+        if (Array.isArray(data)) {
+          setGalleryImages(data as GalleryImage[]);
+        }
+      })
+      .catch((err) => {
+        console.error("Failed to load gallery from API:", err);
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (typeof selectedGalleryImageProp !== 'undefined') {
+      setSelectedGalleryImage(selectedGalleryImageProp || null);
+    }
+  }, [selectedGalleryImageProp]);
+
   const cardClass = isDark
-    ? "bg-[#111B3A] text-white border-[#1E293B]"
+    ? "bg-neutral-900 text-neutral-50 border-neutral-700"
     : "bg-white text-neutral-900 border-neutral-200";
 
   const inputClass = isDark
-    ? "border-[#615B5B] bg-[#0d1b32] text-white placeholder-[#615B5B]"
+    ? "border-neutral-700 bg-neutral-800 text-neutral-50 placeholder-neutral-500"
     : "border-neutral-300 bg-white text-neutral-900 placeholder-neutral-500";
 
   const selectClass = isDark
-    ? "border-[#615B5B] bg-[#0d1b32] text-slate-300"
-    : "border-neutral-300 bg-white text-neutral-600";
+    ? "border-neutral-700 bg-neutral-800 text-neutral-200"
+    : "border-neutral-300 bg-white text-neutral-700";
 
   const secondaryText = isDark
-    ? "text-[#596583]"
+    ? "text-neutral-400"
     : "text-neutral-500";
 
   const handleCategoryChange = (value: string) => {
@@ -121,20 +178,29 @@ export function BlogPublishSettings({
 
   const handleAddTag = (newTag: string) => {
     const trimmed = newTag.trim();
+
     if (trimmed && !tagsList.includes(trimmed)) {
       const updated = [...tagsList, trimmed];
+
       setTagsList(updated);
-      setTag(updated.join(", ")); // Now properly passing back to parent through setTag
+      setTag(updated.join(", "));
     }
+
     setTagInput("");
   };
 
   const handleRemoveTag = (indexToRemove: number) => {
-    const updated = tagsList.filter((_, index) => index !== indexToRemove);
+    const updated = tagsList.filter(
+      (_, index) => index !== indexToRemove
+    );
+
     setTagsList(updated);
-    setTag(updated.join(", ")); // Now properly passing back to parent through setTag
+    setTag(updated.join(", "));
   };
 
+  /*
+   * Validate local image
+   */
   const validateFile = (file: File) => {
     const allowedTypes = [
       "image/jpeg",
@@ -156,6 +222,9 @@ export function BlogPublishSettings({
     return "";
   };
 
+  /*
+   * Local file selection
+   */
   const handleFileChange = (
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
@@ -185,7 +254,59 @@ export function BlogPublishSettings({
       return;
     }
 
+    /*
+     * Local file selected.
+     * Clear gallery selection because only one source
+     * should be active at a time.
+     */
     setSelectedFile(file);
+    setSelectedGalleryImage(null);
+
+    setErrors((prev) => ({
+      ...prev,
+      photo: "",
+    }));
+  };
+
+  /*
+   * Switch photo source
+   */
+  const handlePhotoOptionChange = (
+    option: "local" | "gallery"
+  ) => {
+    setPhotoOption(option);
+
+    /*
+     * Clear previous selections
+     */
+    setSelectedFile(null);
+    setSelectedGalleryImage(null);
+
+    /*
+     * Clear photo error
+     */
+    setErrors((prev) => ({
+      ...prev,
+      photo: "",
+    }));
+  };
+
+  /*
+   * Gallery image selection
+   */
+  const handleGalleryImageSelect = (
+    image: GalleryImage
+  ) => {
+    setSelectedGalleryImage(image);
+
+    if (typeof onSelectGalleryImage === 'function') {
+      onSelectGalleryImage(image);
+    }
+
+    /*
+     * Clear local file because gallery is now selected.
+     */
+    setSelectedFile(null);
 
     setErrors((prev) => ({
       ...prev,
@@ -201,11 +322,12 @@ export function BlogPublishSettings({
         Publish Settings
       </h2>
 
-      {/* Category */}
+      {/* ================= CATEGORY ================= */}
+
       <div className="space-y-1.5">
         <label className="block font-bold text-xs">
           Select Category{" "}
-          <span className="text-red-500">*</span>
+          <span className="text-danger-500">*</span>
         </label>
 
         <select
@@ -213,11 +335,10 @@ export function BlogPublishSettings({
           onChange={(e) =>
             handleCategoryChange(e.target.value)
           }
-          className={`w-full rounded-xl border px-3.5 py-3 text-xs focus:outline-none focus:ring-2 shadow-sm ${
-            errors.category
-              ? "border-red-500 focus:ring-red-500"
-              : selectClass
-          }`}
+          className={`w-full rounded-xl border px-3.5 py-3 text-xs shadow-sm focus:outline-none focus:ring-2 ${errors.category
+              ? "border-danger-500 focus:ring-danger-500"
+              : `${selectClass} focus:border-primary-500 focus:ring-primary-500`
+            }`}
         >
           <option value="" disabled>
             Select Category
@@ -237,13 +358,14 @@ export function BlogPublishSettings({
         </select>
 
         {errors.category && (
-          <p className="text-xs text-red-500">
+          <p className="text-xs text-danger-500">
             {errors.category}
           </p>
         )}
       </div>
 
-      {/* Status */}
+      {/* ================= STATUS ================= */}
+
       <div className="space-y-1.5">
         <label className="block font-bold text-xs">
           Status
@@ -254,7 +376,7 @@ export function BlogPublishSettings({
           onChange={(e) =>
             handleStatusChange(e.target.value)
           }
-          className={`w-full rounded-xl border px-3.5 py-3 text-xs focus:outline-none focus:ring-2 shadow-sm ${selectClass}`}
+          className={`w-full rounded-xl border px-3.5 py-3 text-xs shadow-sm focus:outline-none focus:ring-2 ${selectClass} focus:border-primary-500 focus:ring-primary-500`}
         >
           <option value="Draft">
             Draft
@@ -270,12 +392,13 @@ export function BlogPublishSettings({
         </select>
       </div>
 
-      {/* Publish Date */}
+      {/* ================= PUBLISH DATE ================= */}
+
       {status === "Scheduled" && (
         <div className="space-y-1.5 animate-fadeIn">
           <label className="block font-bold text-xs">
             Publish Date{" "}
-            <span className="text-red-500">*</span>
+            <span className="text-danger-500">*</span>
           </label>
 
           <div className="relative flex items-center">
@@ -288,11 +411,10 @@ export function BlogPublishSettings({
                 )
               }
               placeholder="Enter publish date and time"
-              className={`w-full rounded-xl border px-3.5 py-3 pr-10 text-xs focus:outline-none focus:ring-2 shadow-sm ${
-                errors.publishDate
-                  ? "border-red-500 focus:ring-red-500"
-                  : inputClass
-              }`}
+              className={`w-full rounded-xl border px-3.5 py-3 pr-10 text-xs shadow-sm focus:outline-none focus:ring-2 ${errors.publishDate
+                  ? "border-danger-500 focus:ring-danger-500"
+                  : `${inputClass} focus:border-primary-500 focus:ring-primary-500`
+                }`}
             />
 
             <CalendarTodayIcon
@@ -301,7 +423,7 @@ export function BlogPublishSettings({
           </div>
 
           {errors.publishDate ? (
-            <p className="text-xs text-red-500">
+            <p className="text-xs text-danger-500">
               {errors.publishDate}
             </p>
           ) : (
@@ -314,25 +436,30 @@ export function BlogPublishSettings({
         </div>
       )}
 
-      {/* Tag */}
+      {/* ================= TAGS ================= */}
+
       <div className="space-y-1.5">
         <label className="block font-bold text-xs">
           Tags
         </label>
 
-        <div className={`w-full rounded-xl border px-3 py-2 text-xs shadow-sm ${inputClass}`}>
-          {/* Render Tag Pills */}
+        <div
+          className={`w-full rounded-xl border px-3 py-2 text-xs shadow-sm ${inputClass}`}
+        >
           <div className="flex flex-wrap gap-1.5 mb-1.5">
             {tagsList.map((t, index) => (
               <span
                 key={index}
-                className="inline-flex items-center gap-1 bg-blue-600 text-white text-[11px] px-2 py-0.5 rounded-md"
+                className="inline-flex items-center gap-1 bg-primary-500 text-white text-[11px] px-2 py-0.5 rounded-md"
               >
                 {t}
+
                 <button
                   type="button"
-                  onClick={() => handleRemoveTag(index)}
-                  className="hover:text-red-200 font-bold ml-0.5"
+                  onClick={() =>
+                    handleRemoveTag(index)
+                  }
+                  className="hover:text-danger-200 font-bold ml-0.5 transition-colors"
                 >
                   &times;
                 </button>
@@ -340,12 +467,13 @@ export function BlogPublishSettings({
             ))}
           </div>
 
-          {/* Simple Input with Add Button (No Dropdown) */}
           <div className="flex gap-2">
             <input
               type="text"
               value={tagInput}
-              onChange={(e) => setTagInput(e.target.value)}
+              onChange={(e) =>
+                setTagInput(e.target.value)
+              }
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
                   e.preventDefault();
@@ -353,12 +481,16 @@ export function BlogPublishSettings({
                 }
               }}
               placeholder="Type a tag and press add..."
-              className="w-full bg-transparent focus:outline-none text-xs py-1"
+              className={`w-full bg-transparent focus:outline-none text-xs py-1 ${isDark
+                  ? "text-neutral-50 placeholder-neutral-500"
+                  : "text-neutral-900 placeholder-neutral-500"
+                }`}
             />
+
             <button
               type="button"
               onClick={() => handleAddTag(tagInput)}
-              className="px-3 py-1 bg-blue-600 text-white rounded-lg text-xs font-medium hover:bg-blue-500 transition-colors shrink-0"
+              className="px-3 py-1 bg-primary-500 text-white rounded-lg text-xs font-medium hover:bg-primary-600 transition-colors shrink-0"
             >
               Add
             </button>
@@ -372,99 +504,297 @@ export function BlogPublishSettings({
         </p>
       </div>
 
-      {/* Photos */}
-      <div className="space-y-2 pt-2">
+      {/* ================= PHOTOS ================= */}
+
+      <div className="space-y-3 pt-2">
         <label className="block font-bold text-xs">
           Photos
         </label>
 
-        {/* Photo Source */}
-        <div className="flex items-center gap-4 text-xs">
+        {/* PHOTO SOURCE */}
+        <div className="flex items-center gap-5 text-xs">
+          {/* LOCAL */}
           <label className="flex items-center gap-1.5 cursor-pointer">
             <input
               type="radio"
               name="photoSource"
               checked={photoOption === "local"}
               onChange={() =>
-                setPhotoOption("local")
+                handlePhotoOptionChange("local")
               }
-              className="accent-blue-600"
+              className="accent-primary-500"
             />
 
-            Upload from Local Drive
+            <span>
+              Upload from Local Drive
+            </span>
           </label>
 
+          {/* GALLERY */}
           <label className="flex items-center gap-1.5 cursor-pointer">
             <input
               type="radio"
               name="photoSource"
               checked={photoOption === "gallery"}
               onChange={() =>
-                setPhotoOption("gallery")
+                handlePhotoOptionChange("gallery")
               }
-              className="accent-blue-600"
+              className="accent-primary-500"
             />
 
-            Add from Gallery
+            <span>
+              Add from Gallery
+            </span>
           </label>
         </div>
 
-        {/* Upload Box */}
-        <div
-          className={`border border-dashed rounded-2xl p-6 text-center flex flex-col items-center justify-center gap-3 ${
-            errors.photo
-              ? "border-red-500"
-              : isDark
-              ? "border-[#1E293B] bg-[#0d1b32]/50"
-              : "border-neutral-300 bg-neutral-50"
-          }`}
-        >
-          <div className="w-12 h-12 rounded-full bg-blue-600/10 text-blue-600 flex items-center justify-center">
-            <UploadFileIcon className="w-6 h-6" />
-          </div>
+        {/* ================================================= */}
+        {/* LOCAL DRIVE */}
+        {/* ================================================= */}
 
-          <div className="space-y-1">
-            <p className="text-xs font-medium">
-              Drag & drop Image here
-            </p>
+        {photoOption === "local" && (
+          <>
+            <div
+              className={`border border-dashed rounded-2xl p-6 text-center flex flex-col items-center justify-center gap-3 ${errors.photo
+                  ? "border-danger-500"
+                  : isDark
+                    ? "border-neutral-700 bg-neutral-800/50"
+                    : "border-neutral-300 bg-neutral-50"
+                }`}
+            >
+              <div className="w-12 h-12 rounded-full bg-primary-500/10 text-primary-500 flex items-center justify-center">
+                <UploadFileIcon className="w-6 h-6" />
+              </div>
+
+              <div className="space-y-1">
+                <p className="text-xs font-medium">
+                  Drag & drop Image here
+                </p>
+
+                <p
+                  className={`text-[11px] ${secondaryText}`}
+                >
+                  Or
+                </p>
+              </div>
+
+              <label className="px-4 py-2 rounded-xl bg-primary-500 hover:bg-primary-600 text-white font-medium text-xs transition-colors shadow-md shadow-primary-500/20 cursor-pointer">
+                Upload Image
+
+                <input
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp,image/jpg"
+                  onChange={handleFileChange}
+                  className="hidden"
+                />
+              </label>
+
+              {selectedFile && !errors.photo && (
+                <div className="flex items-center gap-2 max-w-full">
+                  <CheckCircleIcon className="w-4 h-4 text-success-600 shrink-0" />
+
+                  <p className="text-xs text-success-600 break-all">
+                    {selectedFile.name}
+                  </p>
+                </div>
+              )}
+
+              {errors.photo && (
+                <p className="text-xs text-danger-500">
+                  {errors.photo}
+                </p>
+              )}
+            </div>
 
             <p
-              className={`text-[11px] ${secondaryText}`}
+              className={`text-[10px] ${secondaryText} text-center mt-1`}
             >
-              Or
+              Recommended size: 1200*628px (Max, 2MB)
             </p>
+          </>
+        )}
+
+        {/* ================================================= */}
+        {/* GALLERY */}
+        {/* ================================================= */}
+
+        {photoOption === "gallery" && (
+          <div
+            className={`rounded-2xl border p-4 ${isDark
+                ? "border-neutral-700 bg-neutral-800/50"
+                : "border-neutral-200 bg-neutral-50"
+              }`}
+          >
+            <div className="flex justify-end mb-3">
+              <button
+                type="button"
+                onClick={() => setShowGalleryModal(true)}
+                className="px-3 py-1 bg-primary-500 text-white rounded-lg text-xs font-medium hover:bg-primary-600 transition-colors"
+              >
+                Open Gallery
+              </button>
+            </div>
+
+            <div className="flex items-center gap-2 mb-3">
+              <ImageIcon className="w-4 h-4 text-primary-500" />
+
+              <p className="text-xs font-semibold">
+                Select an image from Gallery
+              </p>
+            </div>
+
+            {galleryImages.length > 0 ? (
+              <div className="grid grid-cols-2 gap-3">
+                {galleryImages.map((image) => {
+                  const isSelected =
+                    selectedGalleryImage?.id ===
+                    image.id;
+
+                  return (
+                    <button
+                      key={image.id}
+                      type="button"
+                      onClick={() =>
+                        handleGalleryImageSelect(image)
+                      }
+                      className={`relative overflow-hidden rounded-xl border-2 text-left transition-all ${isSelected
+                          ? "border-primary-500 ring-2 ring-primary-500/20"
+                          : isDark
+                            ? "border-neutral-700 hover:border-primary-400"
+                            : "border-neutral-200 hover:border-primary-400"
+                        }`}
+                    >
+                      <Image
+                        src={image.url}
+                        alt={image.title || 'Gallery image'}
+                        width={800}
+                        height={450}
+                        className="w-full h-28 object-cover"
+                      />
+
+                      <div
+                        className={`px-2 py-1.5 text-[10px] ${isDark
+                            ? "bg-neutral-900 text-neutral-200"
+                            : "bg-white text-neutral-700"
+                          }`}
+                      >
+                        {image.title}
+                      </div>
+
+                      {isSelected && (
+                        <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-primary-500 text-white flex items-center justify-center">
+                          <CheckCircleIcon className="w-4 h-4" />
+                        </div>
+                      )}
+
+                      
+                    </button>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="py-8 text-center">
+                <ImageIcon className="w-8 h-8 mx-auto text-neutral-400 mb-2" />
+
+                <p
+                  className={`text-xs ${secondaryText}`}
+                >
+                  No images available in the gallery.
+                </p>
+              </div>
+            )}
+
+            {selectedGalleryImage && (
+              <div
+                className={`mt-3 rounded-lg px-3 py-2 text-xs ${isDark
+                    ? "bg-primary-500/10 text-primary-300"
+                    : "bg-primary-50 text-primary-700"
+                  }`}
+              >
+                Selected:{" "}
+                <span className="font-semibold">
+                  {selectedGalleryImage.title}
+                </span>
+              </div>
+            )}
+
+            {errors.photo && (
+              <p className="text-xs text-danger-500 mt-2">
+                {errors.photo}
+              </p>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Gallery Modal (uses shared Modal pattern) */}
+      <Modal isOpen={showGalleryModal} onClose={() => setShowGalleryModal(false)} title="Select Image from Gallery" size="xl">
+        <div className="flex items-center justify-between mb-4 gap-4">
+          <div>
+            <p className="text-sm text-neutral-500">Search and pick an image to use in your blog post.</p>
           </div>
 
-          <label className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-medium text-xs transition-colors shadow-md shadow-blue-600/20 cursor-pointer">
-            Upload Image
-
+          <div className="flex items-center gap-2">
             <input
-              type="file"
-              accept="image/jpeg,image/png,image/webp,image/jpg"
-              onChange={handleFileChange}
-              className="hidden"
+              type="text"
+              value={gallerySearch}
+              onChange={(e) => setGallerySearch(e.target.value)}
+              placeholder="Search by user or filename..."
+              className={`rounded-lg border px-3 py-2 text-xs shadow-sm ${isDark ? 'border-neutral-700 bg-neutral-800 text-neutral-50' : 'border-neutral-300 bg-white text-neutral-900'}`}
             />
-          </label>
 
-          {selectedFile && !errors.photo && (
-            <p className="text-xs text-green-500 break-all">
-              {selectedFile.name}
-            </p>
-          )}
-
-          {errors.photo && (
-            <p className="text-xs text-red-500">
-              {errors.photo}
-            </p>
-          )}
+            <button onClick={() => setGallerySearch("")} className="text-xs text-neutral-500 hover:text-neutral-700">Clear</button>
+          </div>
         </div>
 
-        <p
-          className={`text-[10px] ${secondaryText} text-center mt-1`}
-        >
-          Recommended size: 1200*628px (Max, 2MB)
-        </p>
-      </div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+          {((galleryImages || []).filter((img) => {
+            if (!gallerySearch.trim()) return true;
+            const q = gallerySearch.toLowerCase();
+            return (img.title || "").toLowerCase().includes(q) || (img.url || "").toLowerCase().includes(q) || (img.owner || "").toLowerCase().includes(q);
+          })).length === 0 ? (
+            <div className="col-span-full py-16 text-center">
+              <p className="text-sm text-neutral-500">No images match your search.</p>
+            </div>
+          ) : (
+            (galleryImages || []).filter((img) => {
+              if (!gallerySearch.trim()) return true;
+              const q = gallerySearch.toLowerCase();
+              return (img.title || "").toLowerCase().includes(q) || (img.url || "").toLowerCase().includes(q) || (img.owner || "").toLowerCase().includes(q);
+            }).map((image) => {
+              const isSelected = selectedGalleryImage?.id === image.id;
+
+              return (
+                <button
+                  key={image.id}
+                  type="button"
+                  onClick={() => {
+                    handleGalleryImageSelect(image);
+                    setShowGalleryModal(false);
+                  }}
+                  className={`relative overflow-hidden rounded-xl border-2 text-left transition-all ${isSelected ? 'border-primary-500 ring-2 ring-primary-500/20' : (isDark ? 'border-neutral-700 hover:border-primary-400' : 'border-neutral-200 hover:border-primary-400')}`}
+                >
+                                  <Image src={image.url} alt={image.title || 'Gallery image'} width={800} height={450} className="w-full h-40 object-cover" />
+
+                  <div className={`px-2 py-1.5 text-[11px] ${isDark ? 'bg-neutral-900 text-neutral-200' : 'bg-white text-neutral-700'}`}>{image.title}</div>
+
+                  {image.owner && (
+                    <div className="px-2 py-0.5 text-[10px] text-neutral-500">
+                      Uploaded by: <span className="font-medium">{image.owner}</span>
+                    </div>
+                  )}
+
+                  {isSelected && (
+                    <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-primary-500 text-white flex items-center justify-center">
+                      <CheckCircleIcon className="w-4 h-4" />
+                    </div>
+                  )}
+                </button>
+              );
+            })
+          )}
+        </div>
+      </Modal>
     </Card>
   );
 }

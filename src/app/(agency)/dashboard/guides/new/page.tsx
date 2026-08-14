@@ -1,17 +1,25 @@
-'use client';
-import { useRouter } from "next/navigation";
+"use client";
 import { ChevronRight } from "lucide-react";
+import { useState } from "react";
+import toast from "react-hot-toast";
 import { useGuides } from "@/hooks/useGuides";
 import GuideForm from "@/components/agency/guides/GuideForm";
 import Link from "next/link";
 
 export default function NewGuidePage() {
   const { addGuide } = useGuides();
-  const router = useRouter();
+  const [formKey, setFormKey] = useState(0);
 
   const handleSave = (data: Parameters<typeof addGuide>[0]) => {
-    addGuide(data);
-    router.push("/dashboard/guides");
+    try {
+      addGuide(data);
+      toast.success(
+        "Guide created successfully. You can add another guide now.",
+      );
+      setFormKey((current) => current + 1);
+    } catch {
+      toast.error("Could not create the guide. Please try again.");
+    }
   };
 
   return (
@@ -29,7 +37,7 @@ export default function NewGuidePage() {
           Create a new guide profile with a clean dashboard form layout.
         </p>
       </div>
-      <GuideForm onSave={handleSave} isNew />
+      <GuideForm key={formKey} onSave={handleSave} isNew />
     </div>
   );
 }

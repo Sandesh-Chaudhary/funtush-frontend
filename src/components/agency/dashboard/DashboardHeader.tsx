@@ -12,7 +12,7 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 const boxStyle = 'flex items-center gap-2 bg-white p-2 rounded-lg';
-const selectionStyle = 'bg-white text-sm rounded-2xl p-1 hover:bg-[#dfeefb]';
+const selectionStyle = 'bg-white text-xs rounded-2xl p-1 hover:bg-[#dfeefb]';
 
 export default function DashboardHeader() {
   const [isActive, setIsActive] = useState(false);
@@ -48,11 +48,15 @@ export default function DashboardHeader() {
     : '--:-- --';
 
   return (
-    <section className="flex justify-between">
+    <section className="flex flex-col xl:flex-row gap-4 justify-between">
       <div className="font-[500]">
         <h1 className="text-2xl">Good Morning, {user}</h1>
-
         <p className="text-sm text-[#625B71]">Here’s What’s happening with your agency today.</p>
+        <div>
+          <p className="mt-2">
+            Live Visitor: <span className="font-bold text-green-500">120</span>
+          </p>
+        </div>
       </div>
 
       <div className="flex items-center gap-8">
@@ -61,32 +65,33 @@ export default function DashboardHeader() {
           <WbSunnyIcon sx={{ fontSize: '2rem' }} />
 
           <div>
-            <p className="text-lg">Kathmandu, Nepal</p>
+            <p className="text-base">Kathmandu, Nepal</p>
 
             <p>
-              <span className="text-xl font-semibold">27°C</span> <span className="text-sm text-[#625B71]">Sunny</span>
+              <span className="text-base font-semibold">27°C</span>{' '}
+              <span className="text-xs text-[#625B71]">Sunny</span>
             </p>
           </div>
         </div>
 
         {/* Time */}
-        <div className={`${boxStyle} px-3 py-2`}>
+        <div className={boxStyle}>
           <AccessTimeIcon sx={{ fontSize: '2rem' }} />
 
           <div>
-            <p className="text-xl font-semibold">{time}</p>
+            <p className="text-base font-semibold">{time}</p>
 
-            <p className="text-sm font-[500] text-[#525050]">
+            <p className="text-xs font-[500] text-[#525050]">
               {date ? `${MONTHS[month!]} ${day}, ${year}` : 'Loading...'}
             </p>
           </div>
         </div>
 
         {/* Quick Actions */}
-        <div className="relative">
+        <div className="relative ml-auto">
           <button
             onClick={() => setIsActive(!isActive)}
-            className="bg-[#0088FF] text-sm text-white font-[500] px-3 py-4 rounded-lg"
+            className="bg-[#0088FF] text-xs text-white font-[500] p-3 rounded-lg"
           >
             Quick Actions
             <KeyboardArrowDownIcon />

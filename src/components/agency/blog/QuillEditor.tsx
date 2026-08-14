@@ -4,7 +4,6 @@ import { useTheme } from "@/context/theme";
 import { useMemo } from "react";
 import dynamic from "next/dynamic";
 import "react-quill-new/dist/quill.snow.css";
-import { Quill } from "react-quill-new";
 
 const ReactQuill = dynamic(() => import("react-quill-new"), { ssr: false });
 

@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useTheme } from "@/context/theme";
@@ -34,27 +33,27 @@ export function ActiveTrekList({
 
   return (
     <div
-      className={`h-full w-full min-w-0 rounded-xl border p-3 sm:p-4 shadow-sm transition-colors ${
+      className={`h-full w-full min-w-0 rounded-xl border p-3 shadow-sm transition-colors sm:p-4 ${
         isDark
-          ? "bg-slate-900 border-slate-800 text-slate-100"
-          : "bg-white border-slate-200 text-slate-800"
+          ? "border-neutral-800 bg-neutral-900 text-neutral-100"
+          : "border-neutral-200 bg-white text-neutral-800"
       }`}
     >
       {/* Header */}
-      <div
-        className={`mb-3 flex items-center justify-between gap-2 ${
-          isDark ? "text-slate-100" : "text-slate-800"
-        }`}
-      >
-        <h3 className="min-w-0 text-sm font-bold">
+      <div className="mb-3 flex items-center justify-between gap-2">
+        <h3
+          className={`min-w-0 text-sm font-bold ${
+            isDark ? "text-neutral-100" : "text-neutral-800"
+          }`}
+        >
           Active Treks
         </h3>
 
         <span
           className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold sm:text-xs ${
             isDark
-              ? "bg-slate-800 text-slate-300"
-              : "bg-slate-100 text-slate-600"
+              ? "bg-neutral-800 text-neutral-300"
+              : "bg-neutral-100 text-neutral-600"
           }`}
         >
           {treks.length} Live
@@ -73,15 +72,15 @@ export function ActiveTrekList({
               className={`w-full min-w-0 cursor-pointer select-none rounded-lg border p-2.5 text-left transition-all sm:p-3 ${
                 isSelected
                   ? isDark
-                    ? "bg-blue-950/40 border-blue-500 shadow-xs"
-                    : "bg-blue-50/60 border-blue-400 shadow-xs"
+                    ? "border-primary-500 bg-primary-950"
+                    : "border-primary-300 bg-primary-50"
                   : trek.has_sos
                   ? isDark
-                    ? "bg-red-950/30 border-red-900/60 hover:bg-red-950/50"
-                    : "bg-red-50/40 border-red-200 hover:bg-red-50/60"
+                    ? "border-danger-800 bg-danger-900/30 hover:bg-danger-900/50"
+                    : "border-danger-200 bg-danger-50 hover:bg-danger-100"
                   : isDark
-                  ? "bg-slate-900/50 border-slate-800 hover:bg-slate-800/80"
-                  : "bg-slate-50/60 border-slate-100 hover:bg-slate-50"
+                  ? "border-neutral-800 bg-neutral-900/50 hover:bg-neutral-800"
+                  : "border-neutral-200 bg-neutral-50 hover:bg-neutral-100"
               }`}
             >
               {/* Trek Information */}
@@ -91,11 +90,11 @@ export function ActiveTrekList({
                   className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border sm:h-9 sm:w-9 ${
                     trek.has_sos
                       ? isDark
-                        ? "bg-red-950 border-red-800 text-red-400"
-                        : "bg-red-50 border-red-200 text-red-600"
+                        ? "border-danger-800 bg-danger-900 text-danger-400"
+                        : "border-danger-200 bg-danger-50 text-danger-600"
                       : isDark
-                      ? "bg-slate-800 border-slate-700 text-emerald-400"
-                      : "bg-green-50 border-green-200 text-green-600"
+                      ? "border-neutral-700 bg-neutral-800 text-success-400"
+                      : "border-success-200 bg-success-50 text-success-600"
                   }`}
                 >
                   {trek.has_sos ? (
@@ -112,18 +111,21 @@ export function ActiveTrekList({
                     className={`truncate text-[11px] font-bold leading-4 sm:text-xs ${
                       trek.has_sos
                         ? isDark
-                          ? "text-red-400"
-                          : "text-red-600"
+                          ? "text-danger-400"
+                          : "text-danger-600"
                         : isDark
-                        ? "text-slate-100"
-                        : "text-slate-800"
+                        ? "text-neutral-100"
+                        : "text-neutral-800"
                     }`}
                     title={`${trek.name} — ${trek.guide_name}`}
                   >
                     {trek.name}
+
                     <span
                       className={`font-medium ${
-                        isDark ? "text-slate-300" : "text-slate-600"
+                        isDark
+                          ? "text-neutral-300"
+                          : "text-neutral-600"
                       }`}
                     >
                       {" "}
@@ -134,19 +136,21 @@ export function ActiveTrekList({
                   {/* Status + Location */}
                   <div className="mt-0.5 flex min-w-0 items-center gap-1.5 text-[9px] sm:text-[10px]">
                     {trek.has_sos ? (
-                      <span className="shrink-0 font-bold uppercase tracking-wide text-red-500">
+                      <span className="shrink-0 font-bold uppercase tracking-wide text-danger-500">
                         SOS ACTIVE
                       </span>
                     ) : (
-                      <span className="flex shrink-0 items-center gap-1 font-semibold text-emerald-500">
-                        <span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                      <span className="flex shrink-0 items-center gap-1 font-semibold text-success-500">
+                        <span className="inline-block h-1.5 w-1.5 rounded-full bg-success-500" />
                         LIVE
                       </span>
                     )}
 
                     <span
                       className={
-                        isDark ? "text-slate-600" : "text-slate-300"
+                        isDark
+                          ? "text-neutral-600"
+                          : "text-neutral-300"
                       }
                     >
                       •
@@ -154,7 +158,9 @@ export function ActiveTrekList({
 
                     <span
                       className={`min-w-0 truncate font-mono ${
-                        isDark ? "text-slate-400" : "text-slate-500"
+                        isDark
+                          ? "text-neutral-400"
+                          : "text-neutral-500"
                       }`}
                       title={trek.elevation || trek.location_name}
                     >
@@ -168,15 +174,19 @@ export function ActiveTrekList({
               <div className="mt-2.5">
                 <div
                   className={`h-1.5 w-full overflow-hidden rounded-full ${
-                    isDark ? "bg-slate-800" : "bg-slate-100"
+                    isDark
+                      ? "bg-neutral-800"
+                      : "bg-neutral-100"
                   }`}
                 >
                   <div
                     className={`h-full rounded-full ${
-                      trek.has_sos ? "bg-red-500" : "bg-blue-600"
+                      trek.has_sos
+                        ? "bg-danger-500"
+                        : "bg-primary-500"
                     }`}
                     style={{
-                      width: `${trek.progressPercentage || 65}%`,
+                      width: `${trek.progressPercentage ?? 65}%`,
                     }}
                   />
                 </div>
@@ -186,7 +196,9 @@ export function ActiveTrekList({
               <div className="mt-1.5 flex min-w-0 items-center justify-between gap-2 pt-1 text-[9px] sm:mt-2 sm:text-[10px]">
                 <span
                   className={`min-w-0 truncate font-medium ${
-                    isDark ? "text-slate-400" : "text-slate-500"
+                    isDark
+                      ? "text-neutral-400"
+                      : "text-neutral-500"
                   }`}
                   title={trek.progressText || "Day 4 of 12"}
                 >
@@ -195,7 +207,9 @@ export function ActiveTrekList({
 
                 <span
                   className={`shrink-0 italic ${
-                    isDark ? "text-slate-500" : "text-slate-400"
+                    isDark
+                      ? "text-neutral-500"
+                      : "text-neutral-400"
                   }`}
                 >
                   {trek.last_ping}
@@ -208,4 +222,3 @@ export function ActiveTrekList({
     </div>
   );
 }
-

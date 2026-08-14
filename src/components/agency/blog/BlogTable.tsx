@@ -35,11 +35,11 @@ export default function BlogTable({
   const router = useRouter();
 
   const cardClass = isDark
-    ? "bg-[#111B3A] text-white border-[#1E293B]"
-    : "bg-white text-neutral-900 border-neutral-200";
+    ? "border-neutral-800 bg-neutral-900 text-neutral-100"
+    : "border-neutral-200 bg-white text-neutral-900";
 
   const mutedText = isDark
-    ? "text-[#596583]"
+    ? "text-neutral-400"
     : "text-neutral-500";
 
   /* ---------------- VIEW BLOG ---------------- */
@@ -58,6 +58,7 @@ export default function BlogTable({
     }
   };
 
+  /* ---------------- EDIT BLOG ---------------- */
 
   const handleEdit = (blog: BlogPost) => {
     if (!blog?.id) {
@@ -73,6 +74,7 @@ export default function BlogTable({
     }
   };
 
+  /* ---------------- DELETE BLOG ---------------- */
 
   const handleDelete = (blog: BlogPost) => {
     if (!blog?.id) {
@@ -89,8 +91,9 @@ export default function BlogTable({
     }
 
     try {
-      const storedPosts =
-        localStorage.getItem("funtush_blog_posts");
+      const storedPosts = localStorage.getItem(
+        "funtush_blog_posts"
+      );
 
       if (!storedPosts) {
         toast.error("Blog could not be found.");
@@ -134,7 +137,7 @@ export default function BlogTable({
     <div className="space-y-4">
       {/* Desktop Header */}
       <Card
-        className={`hidden lg:grid ${cardClass} rounded-2xl overflow-hidden border p-4 grid-cols-[3.5fr_1fr_1.2fr_1.2fr_1fr_0.8fr_0.8fr_1fr] items-center text-xs font-semibold shadow-sm`}
+        className={`hidden items-center overflow-hidden rounded-2xl border p-4 text-xs font-semibold shadow-sm lg:grid lg:grid-cols-[3.5fr_1fr_1.2fr_1.2fr_1fr_0.8fr_0.8fr_1fr] ${cardClass}`}
       >
         <span>BLOG</span>
         <span>CATEGORY</span>
@@ -150,26 +153,26 @@ export default function BlogTable({
       {posts?.map((blog) => (
         <Card
           key={blog.id}
-          className={`${cardClass} rounded-2xl overflow-hidden border p-4 flex flex-col lg:grid lg:grid-cols-[3.5fr_1fr_1.2fr_1.2fr_1fr_0.8fr_0.8fr_1fr] lg:items-center gap-4 lg:gap-0 text-xs shadow-sm`}
+          className={`flex flex-col gap-4 overflow-hidden rounded-2xl border p-4 text-xs shadow-sm lg:grid lg:grid-cols-[3.5fr_1fr_1.2fr_1.2fr_1fr_0.8fr_0.8fr_1fr] lg:items-center lg:gap-0 ${cardClass}`}
         >
           {/* Blog Thumbnail, Title & Description */}
-          <div className="flex items-center gap-3 min-w-0 pr-2">
-            <div className="relative shrink-0 w-[110px] h-[75px]">
+          <div className="flex min-w-0 items-center gap-3 pr-2">
+            <div className="relative h-[75px] w-[110px] shrink-0">
               <Image
                 src={`/${blog.thumbnail}`}
                 alt={blog.title}
                 fill
-                className="object-cover rounded-xl"
+                className="rounded-xl object-cover"
               />
             </div>
 
-            <div className="flex flex-col justify-center min-w-0 space-y-1">
-              <p className="font-semibold truncate text-xs">
+            <div className="flex min-w-0 flex-col justify-center space-y-1">
+              <p className="truncate text-xs font-semibold">
                 {blog.title}
               </p>
 
               <p
-                className={`text-[11px] truncate ${mutedText}`}
+                className={`truncate text-[11px] ${mutedText}`}
               >
                 {blog.description}
               </p>
@@ -177,8 +180,14 @@ export default function BlogTable({
           </div>
 
           {/* Category */}
-          <div className="flex lg:justify-center items-center">
-            <span className="bg-[#393996] text-white px-3 py-1 rounded-lg text-[11px] font-bold">
+          <div className="flex items-center lg:justify-center">
+            <span
+              className={`rounded-lg border px-3 py-1 text-[11px] font-bold ${
+                isDark
+                  ? "border-primary-700 bg-primary-900 text-primary-200"
+                  : "border-primary-200 bg-primary-50 text-primary-700"
+              }`}
+            >
               {blog.category}
             </span>
           </div>
@@ -190,7 +199,7 @@ export default function BlogTable({
               alt={blog.author.name}
               width={28}
               height={28}
-              className="rounded-full object-cover shrink-0"
+              className="shrink-0 rounded-full object-cover"
             />
 
             <span className="truncate text-xs">
@@ -199,8 +208,10 @@ export default function BlogTable({
           </div>
 
           {/* Date & Time */}
-          <div className="flex lg:flex-col justify-between lg:justify-center lg:items-center text-xs">
-            <p className="font-medium">{blog.date}</p>
+          <div className="flex justify-between text-xs lg:flex-col lg:items-center lg:justify-center">
+            <p className="font-medium">
+              {blog.date}
+            </p>
 
             <p
               className={`text-[11px] ${mutedText}`}
@@ -212,12 +223,18 @@ export default function BlogTable({
           {/* Status */}
           <div className="flex items-center lg:justify-center">
             <span
-              className={`px-3 py-1 rounded-lg text-[11px] font-bold text-center ${
+              className={`rounded-lg border px-3 py-1 text-center text-[11px] font-bold ${
                 blog.status === "Published"
-                  ? "bg-[#3CD875]/20 text-[#3CD875]"
+                  ? isDark
+                    ? "border-success-800 bg-success-900/40 text-success-400"
+                    : "border-success-200 bg-success-50 text-success-700"
                   : blog.status === "Scheduled"
-                  ? "bg-blue-500/20 text-blue-500"
-                  : "bg-[#FF8D28]/20 text-[#FF8D28]"
+                  ? isDark
+                    ? "border-primary-800 bg-primary-900/40 text-primary-400"
+                    : "border-primary-200 bg-primary-50 text-primary-700"
+                  : isDark
+                  ? "border-warning-800 bg-warning-900/40 text-warning-400"
+                  : "border-warning-200 bg-warning-50 text-warning-700"
               }`}
             >
               {blog.status}
@@ -225,8 +242,10 @@ export default function BlogTable({
           </div>
 
           {/* Views */}
-          <div className="flex items-center justify-between lg:justify-center text-xs">
-            <span className="lg:hidden text-neutral-400">
+          <div className="flex items-center justify-between text-xs lg:justify-center">
+            <span
+              className={`lg:hidden ${mutedText}`}
+            >
               Views:
             </span>
 
@@ -236,8 +255,10 @@ export default function BlogTable({
           </div>
 
           {/* Comments */}
-          <div className="flex items-center justify-between lg:justify-center text-xs">
-            <span className="lg:hidden text-neutral-400">
+          <div className="flex items-center justify-between text-xs lg:justify-center">
+            <span
+              className={`lg:hidden ${mutedText}`}
+            >
               Comments:
             </span>
 
@@ -247,21 +268,25 @@ export default function BlogTable({
           </div>
 
           {/* Actions */}
-          <div className="flex items-center justify-end lg:justify-center gap-1.5 border-t lg:border-t-0 pt-3 lg:pt-0 border-neutral-700/20">
+          <div
+            className={`flex items-center justify-end gap-1.5 border-t pt-3 lg:justify-center lg:border-t-0 lg:pt-0 ${
+              isDark
+                ? "border-neutral-800"
+                : "border-neutral-200"
+            }`}
+          >
             {/* View */}
             <button
               type="button"
               aria-label={`View ${blog.title}`}
               onClick={() => handleView(blog)}
-              className={`p-1.5 rounded-lg transition-colors ${
+              className={`cursor-pointer rounded-lg p-1.5 transition-colors ${
                 isDark
-                  ? "hover:bg-white/5 text-gray-300"
-                  : "hover:bg-neutral-100 text-neutral-600"
+                  ? "text-neutral-300 hover:bg-neutral-800 hover:text-neutral-100"
+                  : "text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900"
               }`}
             >
-              <VisibilityIcon
-                style={{ fontSize: 18 }}
-              />
+              <VisibilityIcon sx={{ fontSize: 18 }} />
             </button>
 
             {/* Edit */}
@@ -269,15 +294,13 @@ export default function BlogTable({
               type="button"
               aria-label={`Edit ${blog.title}`}
               onClick={() => handleEdit(blog)}
-              className={`p-1.5 rounded-lg transition-colors ${
+              className={`cursor-pointer rounded-lg p-1.5 transition-colors ${
                 isDark
-                  ? "hover:bg-white/5 text-gray-300"
-                  : "hover:bg-neutral-100 text-neutral-600"
+                  ? "text-neutral-300 hover:bg-neutral-800 hover:text-neutral-100"
+                  : "text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900"
               }`}
             >
-              <EditIcon
-                style={{ fontSize: 18 }}
-              />
+              <EditIcon sx={{ fontSize: 18 }} />
             </button>
 
             {/* Delete */}
@@ -285,11 +308,13 @@ export default function BlogTable({
               type="button"
               aria-label={`Delete ${blog.title}`}
               onClick={() => handleDelete(blog)}
-              className="p-1.5 rounded-lg transition-colors text-red-500 hover:bg-red-500/10"
+              className={`cursor-pointer rounded-lg p-1.5 transition-colors ${
+                isDark
+                  ? "text-danger-400 hover:bg-danger-900/30"
+                  : "text-danger-500 hover:bg-danger-50"
+              }`}
             >
-              <DeleteIcon
-                style={{ fontSize: 18 }}
-              />
+              <DeleteIcon sx={{ fontSize: 18 }} />
             </button>
           </div>
         </Card>
@@ -298,14 +323,14 @@ export default function BlogTable({
       {/* No Blogs */}
       {(!posts || posts.length === 0) && (
         <Card
-          className={`${cardClass} rounded-2xl border p-8 text-center shadow-sm`}
+          className={`rounded-2xl border p-8 text-center shadow-sm ${cardClass}`}
         >
           <p className="text-sm font-medium">
             No blog posts found.
           </p>
 
           <p
-            className={`text-xs mt-1 ${mutedText}`}
+            className={`mt-1 text-xs ${mutedText}`}
           >
             Try creating a new blog post.
           </p>

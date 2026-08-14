@@ -46,16 +46,16 @@ export default function BookingStatus({ agencyId }: Props) {
   const totalBookings = bookingStatus.reduce((total, item) => total + item.count, 0);
 
   return (
-    <section className="lg:min-w-[300px] lg:min-h-[305px] flex flex-col gap-2 pt-[24px] px-[22px] rounded-sm bg-white shadow-sm">
+    <section className="min-w-0 min-h-0 flex flex-col gap-2 p-5 rounded-sm bg-white shadow-sm">
       <div className="flex item-center justify-between">
-        <h3 className="text-[14px] font-semibold leading-[20px]">Booking Status</h3>
+        <h3 className="text-sm font-semibold">Booking Status</h3>
         <label htmlFor="months"></label>
         <select
           name="months"
           id="months"
           value={selectedMonth}
           onChange={(e) => setSelectedMonth(e.target.value)}
-          className="text-[10px] border border-neutral-100 rounded px-[4px] py-[5px] gap-2 outline-none focus:ring-2 focus:ring-blue-500"
+          className="text-[10px] border border-neutral-100 rounded p-1 gap-2 outline-none hover:text-red-700 hover:bg-blue-50 focus:ring-2 focus:ring-blue-500"
         >
           {monthArr.map((month) => (
             <option key={month} value={month}>
@@ -64,7 +64,7 @@ export default function BookingStatus({ agencyId }: Props) {
           ))}
         </select>
       </div>
-      <div className="flex justify-start whitespace-nowrap">
+      <div className="flex flex-col items-center justify-between whitespace-nowrap md:flex-row">
         <PieChart width={180} height={240}>
           <Pie data={bookingStatus} dataKey="count" nameKey="name" cx="50%" cy="50%" innerRadius={50} outerRadius={80}>
             {bookingStatus.map((entry, index) => (
@@ -96,7 +96,7 @@ export default function BookingStatus({ agencyId }: Props) {
         {/* Custom Legend */}
         <div className="flex flex-col gap-y-8 justify-center">
           {bookingStatus.map((item, index) => {
-            const percentage = Math.round((item.count / totalBookings) * 100);
+            const percentage = totalBookings ? Math.round((item.count / totalBookings) * 100) : 0;
 
             return (
               <div key={item.name} className="flex items-center gap-2">

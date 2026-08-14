@@ -8,9 +8,9 @@ export default function ActiveGuides() {
   const activeGuides = guides.filter((guide) => guide.status === 'on_trek');
 
   return (
-    <section className="lg:min-w-[240px] lg:min-h-[175px] flex flex-col gap-4 rounded-sm bg-white p-2 shadow-sm">
+    <section className="flex flex-col gap-4 rounded-sm bg-white p-2 shadow-sm md:col-span-2 lg:col-span-1 xl:min-w-[240px] xl:min-h-[175px]">
       <div className="flex justify-between items-center">
-        <h3 className="font-semibold text-sm leading-[20px]">Active Guides on Trek</h3>
+        <h3 className="font-semibold text-sm">Active Guides on Trek</h3>
         <Link
           href="/dashboard/guides"
           className="text-xs text-[#0D2DFC] font-semibold transition-transform hover:translate-y-[-1px] hover:underline "

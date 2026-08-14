@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { ShieldAlert } from 'lucide-react';
 
@@ -20,9 +21,7 @@ export default function AgencyDashboardPage() {
   const activeSos = ''; // Placeholder for active SOS check
   return (
     <div className="space-y-4 text-neutral-900">
-      <div className="mb-8">
-        <DashboardHeader />
-      </div>
+      <LargeScreenOnly />
 
       {activeSos && (
         <div className="rounded-2xl border border-danger-300 bg-danger-50 px-4 py-3 shadow-sm">
@@ -49,13 +48,13 @@ export default function AgencyDashboardPage() {
         <StatCards agencyId={agencyId} />
       </div>
 
-      <div className="grid grid-cols-1 gap-2 md:grid-cols-2 lg:grid-cols-[1.55fr_1fr_1fr]">
+      <div className="grid gap-2 lg:grid-cols-2 xl:grid-cols-[1.55fr_1fr_1fr]">
         <RevenueOverview agencyId={agencyId} />
         <BookingStatus agencyId={agencyId} />
         <UpcomingTreks agencyId={agencyId} />
       </div>
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-[1.55fr_1fr_1fr_1fr]">
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-[1.55fr_1fr_1fr_1fr]">
         <RecentBookings agencyId={agencyId} />
         <ActiveGuides />
         <TopDestinations /> {/* Placeholder */}
@@ -64,6 +63,34 @@ export default function AgencyDashboardPage() {
       <div>
         <RecentActivity /> {/* Placeholder */}
       </div>
+    </div>
+  );
+}
+
+function LargeScreenOnly() {
+  const [isLarge, setIsLarge] = useState(false);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(min-width: 1024px)');
+
+    (() => setIsLarge(mediaQuery.matches))();
+
+    const handleChange = (event: MediaQueryListEvent) => {
+      setIsLarge(event.matches);
+    };
+
+    mediaQuery.addEventListener('change', handleChange);
+
+    return () => {
+      mediaQuery.removeEventListener('change', handleChange);
+    };
+  }, []);
+
+  if (!isLarge) return null;
+
+  return (
+    <div className="mb-8">
+      <DashboardHeader />
     </div>
   );
 }

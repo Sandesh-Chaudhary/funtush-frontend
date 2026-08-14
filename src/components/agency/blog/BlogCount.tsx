@@ -11,33 +11,50 @@ export default function BlogCount() {
   const { isDark } = useTheme();
 
   const cardClass = isDark
-    ? "bg-[#111B3A] text-white border-[#1E293B]"
+    ? "bg-neutral-900 text-neutral-100 border-neutral-800"
     : "bg-white text-neutral-900 border-neutral-200";
 
-  const secondaryText = isDark ? "text-[#596583]" : "text-neutral-500";
+  const secondaryText = isDark
+    ? "text-neutral-400"
+    : "text-neutral-500";
 
   return (
     <div className="w-full space-y-6">
-      {/* Header & Actions Section */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      {/* Header & Actions */}
+      <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div className="space-y-1">
           {/* Breadcrumbs */}
-          <div className="flex items-center text-xs gap-1">
-            <span className={isDark ? "text-[#596583]" : "text-neutral-500"}>
+          <div className="flex items-center gap-1 text-xs">
+            <span className={secondaryText}>
               Dashboard
             </span>
-            <ChevronRightIcon className={`w-4 h-4 ${isDark ? "text-[#596583]" : "text-neutral-400"}`} />
-            <span className={isDark ? "text-white font-medium" : "text-neutral-900 font-medium"}>
+
+            <ChevronRightIcon
+              className={`h-4 w-4 ${
+                isDark
+                  ? "text-neutral-600"
+                  : "text-neutral-400"
+              }`}
+            />
+
+            <span
+              className={`font-medium ${
+                isDark
+                  ? "text-neutral-100"
+                  : "text-neutral-900"
+              }`}
+            >
               All Blogs
             </span>
           </div>
 
+          {/* Page Title */}
           <h1
-            className={
+            className={`text-2xl font-bold tracking-tight ${
               isDark
-                ? "text-2xl font-bold text-white tracking-tight"
-                : "text-2xl font-bold text-neutral-900 tracking-tight"
-            }
+                ? "text-neutral-100"
+                : "text-neutral-900"
+            }`}
           >
             All Blogs
           </h1>
@@ -47,69 +64,101 @@ export default function BlogCount() {
           </p>
         </div>
 
+        {/* Add Blog Button */}
         <Link
           href="/dashboard/blog/new"
-          className={`flex items-center gap-2 rounded-xl text-xs font-semibold px-5 py-3 transition-all shadow-sm ${
+          className={`inline-flex items-center gap-2 rounded-xl border px-5 py-3 text-xs font-semibold shadow-sm transition-colors ${
             isDark
-              ? "bg-[#111B3A] border border-[#1E293B] text-white hover:bg-[#1a264a]"
-              : "bg-neutral-900 text-white hover:bg-neutral-800"
+              ? "border-neutral-700 bg-neutral-800 text-neutral-100 hover:bg-neutral-700"
+              : "border-neutral-900 bg-neutral-900 text-white hover:bg-neutral-800"
           }`}
         >
-          <AddIcon className="w-4 h-4" />
+          <AddIcon sx={{ fontSize: 16 }} />
           Add new Blog
         </Link>
       </div>
 
-      {/* Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 my-4">
-        <Card className={`${cardClass} rounded-2xl border p-4 flex flex-col justify-between shadow-sm`}>
+      {/* Statistics Cards */}
+      <div className="my-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {/* Total Blogs */}
+        <Card
+          className={`flex flex-col justify-between rounded-2xl border p-4 shadow-sm ${cardClass}`}
+        >
           <div className="flex items-center gap-2">
-            <div className="w-[35px] h-[35px] bg-[#9044D9] rounded-full flex items-center justify-center text-white shrink-0">
-              <DescriptionIcon style={{ fontSize: 18 }} />
+            <div
+              className={`flex h-[35px] w-[35px] shrink-0 items-center justify-center rounded-full ${
+                isDark
+                  ? "bg-primary-900 text-primary-300"
+                  : "bg-primary-100 text-primary-700"
+              }`}
+            >
+              <DescriptionIcon sx={{ fontSize: 18 }} />
             </div>
 
             <div className="pl-2">
-              <p className={`text-xs ${secondaryText} pl-6`}>Total Blogs</p>
-              <p className="font-bold text-2xl pl-2">248</p>
+              <p
+                className={`pl-6 text-xs ${secondaryText}`}
+              >
+                Total Blogs
+              </p>
+
+              <p className="pl-2 text-2xl font-bold">
+                248
+              </p>
             </div>
 
             <Image
               src="/vector.png"
-              alt="vector"
-              width={70.93}
-              height={29.76}
-              className="object-contain ml-auto"
+              alt="Total blogs growth"
+              width={71}
+              height={30}
+              className="ml-auto object-contain"
             />
           </div>
 
           <Growth />
         </Card>
 
+        {/* Published */}
         <StatCard
           title="Published"
           value="248"
-          color="#1CAA50"
           image="/green-squiggle.png"
           cardClass={cardClass}
           secondaryText={secondaryText}
+          iconClass={
+            isDark
+              ? "bg-success-900 text-success-300"
+              : "bg-success-100 text-success-700"
+          }
         />
 
+        {/* Draft */}
         <StatCard
           title="Draft"
           value="248"
-          color="#FF8D28"
           image="/orange-squiggle.png"
           cardClass={cardClass}
           secondaryText={secondaryText}
+          iconClass={
+            isDark
+              ? "bg-warning-900 text-warning-300"
+              : "bg-warning-100 text-warning-700"
+          }
         />
 
+        {/* Total Views */}
         <StatCard
           title="Total Views"
           value="125.5K"
-          color="#0088FF"
           image="/blue-squiggle.png"
           cardClass={cardClass}
           secondaryText={secondaryText}
+          iconClass={
+            isDark
+              ? "bg-primary-900 text-primary-300"
+              : "bg-primary-100 text-primary-700"
+          }
         />
       </div>
     </div>
@@ -119,39 +168,47 @@ export default function BlogCount() {
 function StatCard({
   title,
   value,
-  color,
   image,
   cardClass,
   secondaryText,
+  iconClass,
 }: {
   title: string;
   value: string;
-  color: string;
   image: string;
   cardClass: string;
   secondaryText: string;
+  iconClass: string;
 }) {
   return (
-    <Card className={`${cardClass} rounded-2xl border flex flex-col justify-between shadow-sm`}>
+    <Card
+      className={`flex flex-col justify-between rounded-2xl border p-4 shadow-sm ${cardClass}`}
+    >
       <div className="flex items-center gap-2">
         <div
-          style={{ backgroundColor: color }}
-          className="w-[35px] h-[35px] rounded-full flex items-center justify-center text-white shrink-0"
+          className={`flex h-[35px] w-[35px] shrink-0 items-center justify-center rounded-full ${iconClass}`}
         >
-          <DescriptionIcon style={{ fontSize: 18 }} />
+          <DescriptionIcon sx={{ fontSize: 18 }} />
         </div>
 
         <div className="pl-2">
-          <p className={`text-xs ${secondaryText} pl-6`}>{title}</p>
-          <p className="font-bold text-2xl pl-2">{value}</p>
+          <p
+            className={`pl-6 text-xs ${secondaryText}`}
+          >
+            {title}
+          </p>
+
+          <p className="pl-2 text-2xl font-bold">
+            {value}
+          </p>
         </div>
 
         <Image
           src={image}
-          alt="chart"
-          width={70.93}
-          height={29.76}
-          className="object-contain ml-auto"
+          alt={`${title} chart`}
+          width={71}
+          height={30}
+          className="ml-auto object-contain"
         />
       </div>
 
@@ -162,12 +219,28 @@ function StatCard({
 
 function Growth() {
   return (
-    <div className="flex items-center gap-1.5 text-xs mt-3">
-      <div className="p-0.5 rounded-full bg-[#34C759]/10 text-[#34C759] flex items-center justify-center">
-        <ArrowUpwardIcon style={{ fontSize: 14 }} />
+    <div className="mt-3 flex items-center gap-1.5 text-xs">
+      <div
+        className="
+          flex items-center justify-center
+          rounded-full
+          bg-success-100
+          p-0.5
+          text-success-600
+          dark:bg-success-900/40
+          dark:text-success-400
+        "
+      >
+        <ArrowUpwardIcon sx={{ fontSize: 14 }} />
       </div>
-      <span className="font-semibold text-[#34C759]">12.5%</span>
-      <span className="text-[#596583]">from last month</span>
+
+      <span className="font-semibold text-success-600 dark:text-success-400">
+        12.5%
+      </span>
+
+      <span className="text-neutral-500 dark:text-neutral-400">
+        from last month
+      </span>
     </div>
   );
 }

@@ -1,4 +1,3 @@
-
 "use client";
 
 import { QuillEditor } from "./QuillEditor";
@@ -34,23 +33,50 @@ export function BlogEditorSection({
 }: BlogEditorSectionProps) {
   const { isDark } = useTheme();
 
+  /*
+   * Global theme colors
+   *
+   * Light:
+   * - Card: white
+   * - Text: neutral-900
+   * - Border: neutral-200
+   *
+   * Dark:
+   * - Card: neutral-900
+   * - Text: neutral-50
+   * - Border: neutral-700
+   */
+
   const cardClass = isDark
-    ? "bg-[#111B3A] text-white border-[#1E293B]"
+    ? "bg-neutral-900 text-neutral-50 border-neutral-700"
     : "bg-white text-neutral-900 border-neutral-200";
 
   const inputClass = isDark
-    ? "border-[#615B5B] bg-[#0d1b32] text-white placeholder-[#615B5B]"
-    : "border-neutral-300 bg-white text-neutral-900 placeholder-neutral-500";
+    ? "border-neutral-700 bg-neutral-800 text-neutral-50 placeholder-neutral-500 focus:border-primary-400 focus:ring-primary-400"
+    : "border-neutral-300 bg-white text-neutral-900 placeholder-neutral-500 focus:border-primary-500 focus:ring-primary-500";
+
+  const errorInputClass =
+    "border-danger-500 focus:border-danger-500 focus:ring-danger-500";
 
   return (
     <Card
-      className={`lg:col-span-2 ${cardClass} rounded-2xl border p-6 shadow-sm`}
+      className={`
+        lg:col-span-2
+        ${cardClass}
+        rounded-2xl
+        border
+        p-6
+        shadow-sm
+      `}
     >
-      {/* Blog Title */}
+      {/* =====================================================
+          BLOG TITLE
+          ===================================================== */}
+
       <div className="space-y-1.5">
-        <label className="font-bold">
+        <label className="block text-xs font-bold">
           Blog Title{" "}
-          <span className="text-red-500">*</span>
+          <span className="text-danger-500">*</span>
         </label>
 
         <input
@@ -58,25 +84,35 @@ export function BlogEditorSection({
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Enter blog title..."
-          className={`w-full rounded-xl border px-3.5 py-3 text-xs focus:outline-none focus:ring-2 shadow-sm ${
-            errors.title
-              ? "border-red-500 focus:ring-red-500"
-              : inputClass
-          }`}
+          className={`
+            w-full
+            rounded-xl
+            border
+            px-3.5
+            py-3
+            text-xs
+            shadow-sm
+            focus:outline-none
+            focus:ring-2
+            transition-colors
+            ${errors.title ? errorInputClass : inputClass}
+          `}
         />
-
         {errors.title && (
-          <p className="text-xs text-red-500">
+          <p className="text-xs text-danger-500">
             {errors.title}
           </p>
         )}
       </div>
 
-      {/* Sub Title */}
-      <div className="space-y-1.5 mt-5">
-        <label className="font-bold">
+      {/* =====================================================
+          SUB TITLE
+          ===================================================== */}
+
+      <div className="mt-4 space-y-1.5">
+        <label className="block text-xs font-bold">
           Sub title{" "}
-          <span className="text-red-500">*</span>
+          <span className="text-danger-500">*</span>
         </label>
 
         <input
@@ -84,35 +120,58 @@ export function BlogEditorSection({
           value={subtitle}
           onChange={(e) => setSubtitle(e.target.value)}
           placeholder="Enter sub title..."
-          className={`w-full rounded-xl border px-3.5 py-3 text-xs focus:outline-none focus:ring-2 shadow-sm ${
-            errors.subtitle
-              ? "border-red-500 focus:ring-red-500"
-              : inputClass
-          }`}
+          className={`
+            w-full
+            rounded-xl
+            border
+            px-3.5
+            py-3
+            text-xs
+            shadow-sm
+            focus:outline-none
+            focus:ring-2
+            transition-colors
+            ${errors.subtitle ? errorInputClass : inputClass}
+          `}
         />
-
         {errors.subtitle && (
-          <p className="text-xs text-red-500">
+          <p className="text-xs text-danger-500">
             {errors.subtitle}
           </p>
         )}
       </div>
 
-      {/* Content */}
-      <div className="space-y-1.5 mt-5">
-        <div className="flex justify-between items-center">
-          <label className="font-bold">
+      {/* =====================================================
+          CONTENT
+          ===================================================== */}
+
+      <div className="mt-4 space-y-1.5">
+        <div className="flex items-center justify-between">
+          <label className="block text-xs font-bold">
             Content{" "}
-            <span className="text-red-500">*</span>
+            <span className="text-danger-500">*</span>
           </label>
 
           <button
             type="button"
-            className="flex items-center gap-1.5 text-[11px] text-blue-400 hover:text-blue-300 font-medium"
+            className={`
+              flex
+              items-center
+              gap-1.5
+              text-[11px]
+              font-medium
+              transition-colors
+              ${
+                isDark
+                  ? "text-primary-400 hover:text-primary-300"
+                  : "text-primary-500 hover:text-primary-600"
+              }
+            `}
           >
             <SparklesIcon
               style={{ fontSize: 14 }}
             />
+
             Copy-writing tips
           </button>
         </div>
@@ -120,7 +179,7 @@ export function BlogEditorSection({
         <div
           className={
             errors.content
-              ? "rounded-xl border border-red-500"
+              ? "rounded-xl border border-danger-500"
               : ""
           }
         >
@@ -131,7 +190,7 @@ export function BlogEditorSection({
         </div>
 
         {errors.content && (
-          <p className="text-xs text-red-500">
+          <p className="text-xs text-danger-500">
             {errors.content}
           </p>
         )}
@@ -139,4 +198,3 @@ export function BlogEditorSection({
     </Card>
   );
 }
-

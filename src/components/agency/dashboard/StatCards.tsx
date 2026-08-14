@@ -24,7 +24,7 @@ export default function StatCards({ agencyId }: Props) {
   const stat = [
     {
       label: 'Total Bookings',
-      amount: `$${totalBookings}`,
+      amount: `Rs ${totalBookings.toLocaleString()}`,
       icon: <CalendarMonthIcon />,
       iconBg: 'bg-[#DAEBFF]',
       color: '#0088FF',
@@ -36,7 +36,7 @@ export default function StatCards({ agencyId }: Props) {
     },
     {
       label: 'Revenue (This month)',
-      amount: `$${revenue}`,
+      amount: `Rs ${revenue.toLocaleString()}`,
       icon: <AttachMoneyIcon />,
       iconBg: 'bg-[#E8FDE6]',
       color: '#34C759',
@@ -73,14 +73,14 @@ export default function StatCards({ agencyId }: Props) {
   ];
 
   return (
-    <section className="w-full mt-2 grid gap-8 grid-cols-[repeat(4,minmax(300px,1fr))] lg:grid-cols-4 overflow-x-auto scrollbar-hide">
+    <section className="w-full mt-2 grid gap-8 grid-cols-[repeat(4,minmax(260px,1fr))] xl:grid-cols-4 overflow-x-auto scrollbar-hide">
       {stat.map((item) => {
         return (
           <div
             key={item.label}
-            className="flex w-full min-w-0 items-center justify-between gap-x-4 rounded-lg bg-white px-[10px] py-[9px]"
+            className="flex w-full min-w-0 items-center justify-between gap-x-4 rounded-lg bg-white p-2.5 shadow-sm"
           >
-            <div className="min-w-0 flex flex-col gap-y-2 whitespace-nowrap py-[7px]">
+            <div className="min-w-0 flex flex-col gap-y-2 whitespace-nowrap py-1.5">
               <h3 className="text-xs font-semibold">{item.label}</h3>
               <p className="text-sm font-semibold">{item.amount}</p>
               <p className="text-xs font-semibold text-[#34C759]">

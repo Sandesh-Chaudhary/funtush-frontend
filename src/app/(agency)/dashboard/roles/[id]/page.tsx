@@ -18,10 +18,12 @@ export default function EditRolePage() {
       </div>
     );
   return (
-    <div className="mx-auto max-w-6xl">
-      <div className="mb-6">
+    <div className="mx-auto w-full max-w-6xl py-2 sm:py-4">
+      <div className="mb-7 border-b border-neutral-200 pb-6">
         <div className="flex items-center gap-1 text-xs text-neutral-500">
           <Link href="/dashboard">Dashboard</Link>
+          <ChevronRight size={15} />
+          <Link href="/dashboard/staff">Staff &amp; Roles</Link>
           <ChevronRight size={15} />
           <Link href="/dashboard/roles">Roles</Link>
           <ChevronRight size={15} />

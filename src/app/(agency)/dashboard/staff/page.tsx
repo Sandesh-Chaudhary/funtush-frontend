@@ -2,50 +2,95 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import {
-  Check,
-  ChevronRight,
-  Eye,
-  KeyRound,
-  Pencil,
-  Plus,
-  Trash2,
-} from "lucide-react";
+import { Check, Eye, Pencil, Plus, Trash2, ChevronRight } from "lucide-react";
+import toast from "react-hot-toast";
+import { Modal } from "@/components/ui/modal";
+import StaffIdCard from "@/components/agency/staff/StaffIdCard";
 import { useStaff } from "@/hooks/useStaff";
-import { PERMISSION_SECTIONS, roleLabel, useRoles } from "@/hooks/useRoles";
+import { roleLabel, useRoles } from "@/hooks/useRoles";
 
 const initials = (name: string) =>
   name
-    .split(" ")
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
     .map((part) => part[0])
     .slice(0, 2)
     .join("")
     .toUpperCase();
 
 export default function StaffPage() {
-  const { staff, toggleActive, deleteStaff } = useStaff();
+  const { staff, toggleActive, deleteStaff, updateStaff } = useStaff();
   const { roles } = useRoles();
-  const [selectedRoleId, setSelectedRoleId] = useState("");
-  const selectedRole =
-    roles.find((role) => role.id === selectedRoleId) ?? roles[0];
+  const [viewStaff, setViewStaff] = useState<(typeof staff)[number] | null>(
+    null,
+  );
+  const [editStaff, setEditStaff] = useState<(typeof staff)[number] | null>(
+    null,
+  );
+  const [editForm, setEditForm] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    role: "",
+    active: true,
+  });
+
+  const openEditStaff = (member: (typeof staff)[number]) => {
+    setEditStaff(member);
+    setEditForm({
+      name: member.name,
+      email: member.email,
+      phone: member.phone,
+      role: member.role,
+      active: member.active,
+    });
+  };
+
+  const saveStaffChanges = () => {
+    if (!editStaff) return;
+    const name = editForm.name.trim();
+    const email = editForm.email.trim();
+    const phone = editForm.phone.trim();
+    if (!name || !email || !editForm.role) {
+      toast.error("Name, email, and role are required.");
+      return;
+    }
+    try {
+      updateStaff(editStaff.id, {
+        name,
+        email,
+        phone,
+        role: editForm.role,
+        active: editForm.active,
+      });
+      toast.success("Staff member updated successfully.");
+      setEditStaff(null);
+    } catch {
+      toast.error("Could not update the staff member. Please try again.");
+    }
+  };
 
   const removeStaff = (id: string) => {
     if (window.confirm("Remove this staff member?")) deleteStaff(id);
   };
 
   return (
-    <div className="mx-auto max-w-362.5 space-y-6">
-      <header className="flex flex-col gap-4 border-b border-neutral-200 pb-5 lg:flex-row lg:items-start lg:justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-neutral-950">
-            Staff &amp; Roles
-          </h1>
-          <div className="mt-3 flex items-center gap-2 text-sm">
-            <span className="text-neutral-500">Staff</span>
-            <ChevronRight size={16} className="text-neutral-400" />
-            <span className="font-semibold text-primary-600">All Staff</span>
+    <div className="space-y-4 w-full">
+      <h1 className="mt-2 text-2xl font-semibold text-neutral-900">
+        Staff & Roles
+      </h1>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2 text-sm text-neutral-500">
+            <Link href={"/dashboard/staff"}>Staff</Link>
+            <span className="text-neutral-300">
+              <ChevronRight size={15} />
+            </span>
+            <span className="font-semibold text-neutral-900">All Staff</span>
           </div>
         </div>
+
         <div className="flex flex-wrap gap-3">
           <Link
             href="/dashboard/roles/new"
@@ -57,102 +102,9 @@ export default function StaffPage() {
             href="/dashboard/staff/new"
             className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary-600 px-5 py-3 text-sm font-semibold text-white shadow-sm hover:bg-primary-700"
           >
-            <Plus size={22} /> Create Staff
+            <Plus size={22} /> Add Staff
           </Link>
         </div>
-      </header>
-
-      <div className="grid gap-5 xl:grid-cols-[.82fr_1.18fr]">
-        <section className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-neutral-100">
-          <div className="mb-5 flex items-center justify-between gap-3">
-            <h2 className="text-2xl font-bold text-neutral-950">
-              Custom Roles
-            </h2>
-            <span className="text-sm font-medium text-neutral-400">
-              Stored locally
-            </span>
-          </div>
-          <div className="space-y-2">
-            {roles.map((role, index) => {
-              const active = role.id === selectedRole?.id;
-              const memberCount = staff.filter(
-                (member) => member.role === role.id,
-              ).length;
-              return (
-                <div
-                  key={role.id}
-                  className={`flex items-center gap-3 rounded-xl p-3 transition ${active ? "bg-primary-50 ring-1 ring-primary-100" : "hover:bg-neutral-50"}`}
-                >
-                  <button
-                    onClick={() => setSelectedRoleId(role.id)}
-                    className="flex min-w-0 flex-1 items-center gap-3 text-left"
-                  >
-                    <span
-                      className={`grid h-9 w-9 shrink-0 place-items-center rounded-lg ${index % 2 ? "bg-success-500" : "bg-primary-600"} text-white`}
-                    >
-                      <KeyRound size={18} />
-                    </span>
-                    <span className="min-w-0 flex-1">
-                      <strong className="block truncate text-base text-neutral-900">
-                        {role.name}
-                      </strong>
-                      <small className="mt-1 block truncate text-xs text-neutral-400">
-                        {role.permissions.length === 10
-                          ? "Full agency access"
-                          : `${role.permissions.map((item) => item[0].toUpperCase() + item.slice(1)).join(" · ")}`}{" "}
-                        · {memberCount} staff
-                      </small>
-                    </span>
-                  </button>
-                  <Link
-                    href={`/dashboard/roles/${role.id}`}
-                    className="rounded-md bg-warning-100 p-2 text-warning-600 hover:bg-warning-200"
-                    aria-label={`Edit ${role.name}`}
-                  >
-                    <Pencil size={18} />
-                  </Link>
-                </div>
-              );
-            })}
-          </div>
-          <Link
-            href="/dashboard/roles"
-            className="mt-5 inline-flex text-sm font-semibold text-primary-600 hover:underline"
-          >
-            Manage all roles
-          </Link>
-        </section>
-
-        <section className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-neutral-100 sm:p-5">
-          <h2 className="text-2xl font-bold text-neutral-950">
-            Permissions - {selectedRole?.name ?? "Role"}
-          </h2>
-          <div className="mt-5 grid gap-2.5 sm:grid-cols-2">
-            {PERMISSION_SECTIONS.map((section) => {
-              const allowed = Boolean(
-                selectedRole?.permissions.includes(section.toLowerCase()),
-              );
-              return (
-                <div
-                  key={section}
-                  className="flex items-center justify-between rounded-xl border border-neutral-200 px-3 py-3"
-                >
-                  <span className="text-sm font-semibold text-neutral-800">
-                    {section}: Access
-                  </span>
-                  <span
-                    className={`flex h-8 w-14 items-center rounded-full p-1 ${allowed ? "justify-end bg-primary-600" : "justify-start bg-neutral-300"}`}
-                  >
-                    <span className="h-6 w-6 rounded-full bg-white shadow-sm" />
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-          <p className="mt-3 text-sm font-medium text-neutral-400">
-            Changes apply after you save the role.
-          </p>
-        </section>
       </div>
 
       <section className="overflow-x-auto rounded-2xl bg-white shadow-sm ring-1 ring-neutral-100">
@@ -177,10 +129,7 @@ export default function StaffPage() {
                   </span>
                 </td>
                 <td className="px-5 py-5">
-                  <Link
-                    href={`/dashboard/staff/${member.id}`}
-                    className="flex items-center gap-3"
-                  >
+                  <div className="flex items-center gap-3">
                     <span className="grid h-11 w-11 place-items-center rounded-full bg-success-500 font-semibold text-white">
                       {initials(member.name)}
                     </span>
@@ -192,7 +141,7 @@ export default function StaffPage() {
                         {member.email}
                       </small>
                     </span>
-                  </Link>
+                  </div>
                 </td>
                 <td className="px-5 py-5 text-sm font-semibold text-neutral-800">
                   {roleLabel(member.role, roles)}
@@ -205,6 +154,7 @@ export default function StaffPage() {
                 </td>
                 <td className="px-5 py-5">
                   <button
+                    type="button"
                     onClick={() => toggleActive(member.id)}
                     className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold ${member.active ? "bg-success-100 text-success-600" : "bg-neutral-100 text-neutral-500"}`}
                   >
@@ -217,21 +167,26 @@ export default function StaffPage() {
                 </td>
                 <td className="px-5 py-5">
                   <div className="flex gap-2">
-                    <Link
-                      href={`/dashboard/staff/${member.id}`}
-                      className="rounded-md bg-warning-100 p-2 text-warning-600 hover:bg-warning-200"
-                      aria-label={`Edit ${member.name}`}
-                    >
-                      <Pencil size={18} />
-                    </Link>
-                    <Link
-                      href={`/dashboard/staff/${member.id}`}
+                    <button
+                      type="button"
+                      onClick={() => setViewStaff(member)}
                       className="rounded-md bg-primary-100 p-2 text-primary-600 hover:bg-primary-200"
-                      aria-label={`View ${member.name}`}
+                      aria-label={`View ${member.name} ID card`}
+                      title="View ID card"
                     >
                       <Eye size={18} />
-                    </Link>
+                    </button>
                     <button
+                      type="button"
+                      onClick={() => openEditStaff(member)}
+                      className="rounded-md bg-warning-100 p-2 text-warning-600 hover:bg-warning-200"
+                      aria-label={`Edit ${member.name}`}
+                      title="Edit staff"
+                    >
+                      <Pencil size={18} />
+                    </button>
+                    <button
+                      type="button"
                       onClick={() => removeStaff(member.id)}
                       className="rounded-md bg-danger-100 p-2 text-danger-500 hover:bg-danger-200"
                       aria-label={`Remove ${member.name}`}
@@ -245,6 +200,173 @@ export default function StaffPage() {
           </tbody>
         </table>
       </section>
+
+      <Modal
+        isOpen={!!viewStaff}
+        onClose={() => setViewStaff(null)}
+        title={viewStaff ? `${viewStaff.name} ID Card` : undefined}
+        size="xl"
+      >
+        {viewStaff && (
+          <StaffIdCard
+            staff={viewStaff}
+            roleName={roleLabel(viewStaff.role, roles)}
+          />
+        )}
+      </Modal>
+
+      <Modal
+        isOpen={!!editStaff}
+        onClose={() => setEditStaff(null)}
+        title={editStaff ? `Edit ${editStaff.name}` : undefined}
+        size="lg"
+      >
+        {editStaff && (
+          <div className="space-y-6">
+            <div className="grid gap-6 lg:grid-cols-2">
+              <div>
+                <label
+                  className="block text-sm font-medium text-neutral-700"
+                  htmlFor="edit-staff-name"
+                >
+                  Name
+                </label>
+                <input
+                  id="edit-staff-name"
+                  value={editForm.name}
+                  onChange={(event) =>
+                    setEditForm((current) => ({
+                      ...current,
+                      name: event.target.value,
+                    }))
+                  }
+                  className="mt-2 w-full rounded-2xl border border-neutral-200 bg-white px-4 py-2 text-sm text-neutral-900 outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-100"
+                />
+              </div>
+              <div>
+                <label
+                  className="block text-sm font-medium text-neutral-700"
+                  htmlFor="edit-staff-email"
+                >
+                  Email
+                </label>
+                <input
+                  id="edit-staff-email"
+                  type="email"
+                  value={editForm.email}
+                  onChange={(event) =>
+                    setEditForm((current) => ({
+                      ...current,
+                      email: event.target.value,
+                    }))
+                  }
+                  className="mt-2 w-full rounded-2xl border border-neutral-200 bg-white px-4 py-2 text-sm text-neutral-900 outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-100"
+                />
+              </div>
+            </div>
+
+            <div className="grid gap-6 sm:grid-cols-3">
+              <div>
+                <label
+                  className="block text-sm font-medium text-neutral-700"
+                  htmlFor="edit-staff-phone"
+                >
+                  Phone
+                </label>
+                <input
+                  id="edit-staff-phone"
+                  type="tel"
+                  value={editForm.phone}
+                  onChange={(event) =>
+                    setEditForm((current) => ({
+                      ...current,
+                      phone: event.target.value,
+                    }))
+                  }
+                  className="mt-2 w-full rounded-2xl border border-neutral-200 bg-white px-4 py-2 text-sm text-neutral-900 outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-100"
+                />
+              </div>
+              <div>
+                <label
+                  className="block text-sm font-medium text-neutral-700"
+                  htmlFor="edit-staff-role"
+                >
+                  Role
+                </label>
+                <select
+                  id="edit-staff-role"
+                  value={editForm.role}
+                  onChange={(event) =>
+                    setEditForm((current) => ({
+                      ...current,
+                      role: event.target.value,
+                    }))
+                  }
+                  className="mt-2 w-full rounded-2xl border border-neutral-200 bg-white px-4 py-2 text-sm text-neutral-900 outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-100"
+                >
+                  <option value="">Select a role...</option>
+                  {roles.map((role) => (
+                    <option key={role.id} value={role.id}>
+                      {role.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label
+                  className="block text-sm font-medium text-neutral-700"
+                  htmlFor="edit-staff-status"
+                >
+                  Status
+                </label>
+                <select
+                  id="edit-staff-status"
+                  value={editForm.active ? "active" : "inactive"}
+                  onChange={(event) =>
+                    setEditForm((current) => ({
+                      ...current,
+                      active: event.target.value === "active",
+                    }))
+                  }
+                  className="mt-2 w-full rounded-2xl border border-neutral-200 bg-white px-4 py-2 text-sm text-neutral-900 outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-100"
+                >
+                  <option value="active">Active</option>
+                  <option value="inactive">Inactive</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="rounded-3xl border border-neutral-200 bg-slate-50 p-5">
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-neutral-500">
+                Staff ID
+              </p>
+              <p className="mt-2 text-sm font-semibold text-neutral-900">
+                {editStaff.id.toUpperCase()}
+              </p>
+              <p className="mt-1 text-xs text-neutral-500">
+                Staff IDs are assigned automatically and cannot be changed.
+              </p>
+            </div>
+
+            <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
+              <button
+                type="button"
+                onClick={() => setEditStaff(null)}
+                className="rounded-2xl border border-neutral-200 px-4 py-2 text-sm font-semibold text-neutral-900 transition hover:bg-neutral-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={saveStaffChanges}
+                className="rounded-2xl bg-primary-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary-800"
+              >
+                Save changes
+              </button>
+            </div>
+          </div>
+        )}
+      </Modal>
     </div>
   );
 }

@@ -3,9 +3,16 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
+import toast from "react-hot-toast";
 import { PERMISSION_SECTIONS, Role, useRoles } from "@/hooks/useRoles";
 
-export default function RoleForm({ role }: { role?: Role }) {
+export default function RoleForm({
+  role,
+  onSaved,
+}: {
+  role?: Role;
+  onSaved?: () => void;
+}) {
   const router = useRouter();
   const { saveRole } = useRoles();
   const [name, setName] = useState(role?.name ?? "");
@@ -20,15 +27,35 @@ export default function RoleForm({ role }: { role?: Role }) {
     );
   const submit = (event: FormEvent) => {
     event.preventDefault();
+    const trimmedName = name.trim();
+    if (!trimmedName) {
+      toast.error("Enter a name for the role.");
+      return;
+    }
     const id =
       role?.id ??
-      `${name
+      `${trimmedName
         .toLowerCase()
         .trim()
         .replace(/[^a-z0-9]+/g, "_")
         .replace(/^_|_$/g, "")}_${Date.now().toString().slice(-5)}`;
-    saveRole({ id, name: name.trim(), permissions });
-    router.push("/dashboard/roles");
+    try {
+      saveRole({ id, name: trimmedName, permissions });
+      toast.success(
+        role
+          ? "Role updated successfully."
+          : onSaved
+            ? "Role created successfully. You can add another role now."
+            : "Role created successfully.",
+      );
+      if (onSaved) {
+        onSaved();
+      } else {
+        router.push("/dashboard/roles");
+      }
+    } catch {
+      toast.error("Could not save the role. Please try again.");
+    }
   };
   return (
     <form
@@ -65,8 +92,13 @@ export default function RoleForm({ role }: { role?: Role }) {
             const key = section.toLowerCase();
             const enabled = permissions.includes(key);
             return (
-              <label
-                className="flex cursor-pointer items-center justify-between gap-3 rounded-xl border border-neutral-200 p-3 hover:border-primary-300"
+              <button
+                type="button"
+                role="switch"
+                aria-checked={enabled}
+                aria-label={`Toggle ${section} permission`}
+                onClick={() => toggle(key)}
+                className={`flex w-full items-center justify-between gap-3 rounded-xl border p-3 text-left transition focus:outline-none focus:ring-4 focus:ring-primary-100 ${enabled ? "border-primary-300 bg-primary-50/50" : "border-neutral-200 hover:border-primary-300"}`}
                 key={key}
               >
                 <span>
@@ -77,13 +109,13 @@ export default function RoleForm({ role }: { role?: Role }) {
                     Access {section.toLowerCase()} tools
                   </small>
                 </span>
-                <input
-                  className="h-5 w-5 accent-primary-600"
-                  type="checkbox"
-                  checked={enabled}
-                  onChange={() => toggle(key)}
-                />
-              </label>
+                <span
+                  aria-hidden="true"
+                  className={`flex h-7 w-12 shrink-0 items-center rounded-full p-1 transition ${enabled ? "justify-end bg-primary-600" : "justify-start bg-neutral-300"}`}
+                >
+                  <span className="h-5 w-5 rounded-full bg-white shadow-sm" />
+                </span>
+              </button>
             );
           })}
         </div>

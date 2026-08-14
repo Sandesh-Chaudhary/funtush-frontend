@@ -42,8 +42,8 @@ export default function RecentBookings({ agencyId }: Props) {
   });
 
   return (
-    <section className="flex flex-col gap-1 rounded-lg px-2 py-2 bg-white shadow-sm">
-      <div className="flex justify-between items-center mb-2">
+    <section className="min-w-[370px] flex flex-col gap-1 rounded-lg p-2 bg-white shadow-sm md:col-span-2 xl:col-span-1">
+      <div className="flex justify-between items-center mb-3">
         <h3 className="font-semibold text-sm">Recent Bookings</h3>
         <Link
           href="/dashboard/bookings"
@@ -60,24 +60,26 @@ export default function RecentBookings({ agencyId }: Props) {
         <span className={headerStyles}>Status</span>
       </div>
       <hr className="w-full border border-[#F2F2F7] mb-1" />
-      {recentBookingArr.map((booking) => {
-        return (
-          <div key={booking.id} className={`${tableStyles}`}>
-            <span className={`${dataStyles} flex item-center`}>
-              <AccountCircleIcon className="block" />
-              {booking.customer}
-            </span>
-            <span className={dataStyles}>{booking.packageName}</span>
-            <span className={dataStyles}>{booking.bookingDate}</span>
-            <span className={dataStyles}>Rs {booking.amount.toLocaleString()}</span>
-            <span
-              className={`justify-self-start self-center rounded-full px-2 py-1 ${dataStyles} ${statusStyles[booking.status as keyof typeof statusStyles]}`}
-            >
-              {booking.status}
-            </span>
-          </div>
-        );
-      })}
+      <div className="mt-1 flex flex-col gap-1">
+        {recentBookingArr.map((booking) => {
+          return (
+            <div key={booking.id} className={`${tableStyles}`}>
+              <span className={`${dataStyles} flex item-center`}>
+                <AccountCircleIcon className="block" />
+                {booking.customer}
+              </span>
+              <span className={dataStyles}>{booking.packageName}</span>
+              <span className={dataStyles}>{booking.bookingDate}</span>
+              <span className={dataStyles}>Rs {booking.amount.toLocaleString()}</span>
+              <span
+                className={`justify-self-start self-center rounded-full px-2 py-1 ${dataStyles} ${statusStyles[booking.status as keyof typeof statusStyles]}`}
+              >
+                {booking.status}
+              </span>
+            </div>
+          );
+        })}
+      </div>
     </section>
   );
 }

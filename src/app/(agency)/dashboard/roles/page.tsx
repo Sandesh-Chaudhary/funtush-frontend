@@ -23,13 +23,18 @@ export default function RolesPage() {
   };
 
   return (
-    <div className="mx-auto max-w-6xl">
-      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+    <div className="mx-auto w-full max-w-6xl py-2 sm:py-4">
+      <div className="mb-7 flex flex-col gap-4 border-b border-neutral-200 pb-6 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <div className="flex items-center gap-1 text-xs text-neutral-500">
             <Link href="/dashboard">Dashboard</Link>
             <ChevronRight size={15} />
-            <span>Staff &amp; Roles</span>
+            <Link
+              href="/dashboard/staff"
+              className="transition hover:text-primary-700 "
+            >
+              Staff &amp; Roles
+            </Link>
             <ChevronRight size={15} />
             <strong className="text-primary-900">Roles</strong>
           </div>
@@ -47,7 +52,7 @@ export default function RolesPage() {
           <Plus size={18} /> Create role
         </Link>
       </div>
-      <div className="mb-4 flex flex-wrap gap-3">
+      <div className="mb-6 flex flex-wrap gap-3">
         <div className="flex items-center gap-2 rounded-xl border border-primary-100 bg-white px-3 py-2 text-sm text-neutral-600">
           <ShieldCheck className="text-primary-500" size={18} />
           <span>
@@ -63,7 +68,7 @@ export default function RolesPage() {
           </span>
         </div>
       </div>
-      <section className="grid gap-4 md:grid-cols-2">
+      <section className="grid gap-5 md:grid-cols-2">
         {roles.map((role) => {
           const members = staff.filter((member) => member.role === role.id);
           const summary =
